@@ -1,0 +1,64 @@
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(16px + 1vw);
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+}
+body {
+  font-family: "Lato", sans-serif;
+  color: #222222;
+  scroll-snap-type: y mandatory;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+$font-scale: 1.33;
+
+h1,
+.h1 {
+  font-size: 1em * $font-scale * $font-scale * $font-scale ;
+  margin: 1 0.25em;
+}
+h2,
+.h2 {
+  font-size: 1em * $font-scale  * $font-scale ;
+}
+h3,
+.h3 {
+  font-size: 1em * $font-scale;
+}
+h4,
+.h4 {
+  font-size: 1em;
+}
+h5,
+.h5 {
+  font-size: 1em / $font-scale;
+}
+h6,
+.h6 {
+  font-size: 1em / $font-scale / $font-scale;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.title {
+  font-family: Montserrat-Black;
+  color: #ffffff;
+}
+.page {
+
+  &__contents{
+    max-width: 800px;
+  }
+}
+@import "clearfix";

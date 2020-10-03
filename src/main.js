@@ -1,4 +1,11 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import Vue from "vue";
+import App from "./App.vue";
 
-createApp(App).mount('#app')
+import "normalize.css";
+import "./css/main.scss";
+
+Vue.config.productionTip = false;
+
+new Vue({
+  render: h => h(App)
+}).$mount("#app");
