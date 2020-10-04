@@ -23,21 +23,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 1rem;
-  scroll-snap-align: start;
-
-  &__contents {
-    float: left;
-    width: 100%;
-    border: 1px solid orange;
-  }
-}
-</style>
-
 <style lang="scss" scoped>
 .page--title-page {
   background-image: linear-gradient(30deg, #f6f5ef, #ebe0d9);

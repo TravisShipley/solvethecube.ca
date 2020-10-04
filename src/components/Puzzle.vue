@@ -4,10 +4,12 @@
 
 <script>
 import * as THREE from "three";
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
+// TODO these imports used to work
+// import { gsap } from "gsap";
+// import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// gsap.registerPlugin(ScrollTrigger);
 
 import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
@@ -25,15 +27,12 @@ export default {
       container: null,
       timeline: null,
       scrollY: 0,
-      puzzleState: "tomato",
-      styleObject: {
-        // width: (this.scrollY > 100) ? "50vw" :
-      }
+      puzzleState: "tomato"
     };
   },
   methods: {
     init() {
-      console.log("Initialized");
+      console.log("Initialized", gsap);
 
       this.container = document.getElementById("container");
 

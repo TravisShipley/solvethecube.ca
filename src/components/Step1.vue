@@ -1,7 +1,7 @@
 <template>
   <section>
     <div class="page page--step1">
-      <span class="line"></span>
+      <PageProgress :progress="progress" />
       <h1 class="title title--step1"><span>1.</span>The Daisy</h1>
       <h1>Modular Scale</h1>
       <h2>Modular Scale</h2>
@@ -14,8 +14,18 @@
 </template>
 
 <script>
+import PageProgress from "./PageProgress";
+
 export default {
-  name: "Step1"
+  name: "Step1",
+  components: {
+    PageProgress
+  },
+  data() {
+    return {
+      progress: 80
+    };
+  }
 };
 </script>
 

@@ -32,18 +32,21 @@
           <span>The yellow center is always opposite the white center</span>
         </p>
       </div>
+      <Box />
     </div>
   </section>
 </template>
 
 <script>
+import Box from "./Box";
 export default {
   name: "Intro",
+  components: {
+    Box
+  },
   data() {
     return {
-      cornerDescription: "",
-      edgeDescription: "All Edges have 2 colors and there are only 16 of them",
-      centerDescription: "xxx"
+      cornerDescription: ""
     };
   },
   methods: {
@@ -55,6 +58,19 @@ export default {
     },
     centers: function() {
       console.log("centers");
+    },
+    init() {
+      let tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: this.$refs.page,
+          // markers: true,
+          pin: true, // pin the trigger element while active
+          start: "top top", // when the top of the trigger hits the top of the viewport
+          end: () => "+=100%",
+          scrub: true
+        }
+      });
+      tl.to(this, { ease: "none", progress: 100 });
     }
   }
 };
