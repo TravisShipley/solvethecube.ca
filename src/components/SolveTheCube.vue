@@ -1,15 +1,18 @@
 <template>
-  <div class="page page--title-page">
-    <div class="page__contents">
-      <h1 class="title title--main">Solve The Cube</h1>
-      <h2 class="tagline">
-        Learn to solve a Rubik's Cube in the next
-        <span class="nowrap">45 minutes</span> with these
-        <span class="easy-steps nowrap">8 easy steps.</span>
-      </h2>
+  <section>
+    <div class="page page--title-page">
+      <div class="page__contents">
+        <h1 class="title title--main z-100">Solve The Cube</h1>
+        <h2 class="tagline z-100">
+          <span>Learn to solve a Rubik's Cube in the next&nbsp;</span>
+          <span class="nowrap">45 minutes&nbsp;</span
+          ><span>with these&nbsp;</span>
+          <span class="easy-steps nowrap">8 easy steps.</span>
+        </h2>
+      </div>
+      <ScrollPrompt />
     </div>
-    <ScrollPrompt />
-  </div>
+  </section>
 </template>
 
 <script>
@@ -24,23 +27,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page--title-page {
-  background-image: linear-gradient(30deg, #f6f5ef, #ebe0d9);
-}
-.page__contents {
-  padding: 1rem;
-}
 .title--main {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
   font-size: 4em;
   max-width: 5em;
   margin: 0;
   text-align: left;
   font-weight: 900;
   line-height: 0.8;
-  text-shadow: 0 5px 16px rgba(25, 41, 64, 0.22);
-  // text-shadow: 3px 3px 0 rgba(255,163,163,0.50);
+  text-shadow: 0 0.33rem 1rem rgba(25, 41, 64, 0.22),
+    0.2rem 0.2rem 0 rgba(255, 163, 163, 0.5);
   @media screen and (min-width: 900px) {
-    // font-size: 120px;
+    font-size: 6em;
   }
 }
 
@@ -53,17 +53,28 @@ export default {
   line-height: 1.4;
   width: calc(100vw - 4rem);
   max-width: 13em;
+  color: #221112;
+  span {
+    background: rgba(241, 237, 232, 0.356);
+    background: rgba(255, 225, 197, 0.568);
+    background: #f6f5ef79;
+  }
+
+  .easy-steps {
+    display: inline-block;
+    background: #ff6565;
+    border-radius: 3px;
+    color: white;
+    padding: 0 0.5em 0.15em 0.5em;
+  }
+  .nowrap {
+    white-space: nowrap;
+  }
 }
 
-.easy-steps {
-  display: inline-block;
-  background: #ff6565;
-  border-radius: 3px;
-  color: white;
-  padding: 0 0.5em 0.15em 0.5em;
-}
-
-.nowrap {
-  white-space: nowrap;
+section {
+  // width: 100vw;
+  // height: 100vh;
+  background-image: linear-gradient(30deg, #f6f5ef, #ebe0d9);
 }
 </style>

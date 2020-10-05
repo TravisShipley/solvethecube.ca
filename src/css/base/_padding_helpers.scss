@@ -1,0 +1,85 @@
+// padding with ems
+.p0 {
+  padding: 0;
+}
+.p1 {
+  padding: 1em;
+}
+.p1_25 {
+  padding: 1.25em;
+}
+.p1_5 {
+  padding: 1.5em;
+}
+.p2 {
+  padding: 2em;
+}
+.p3 {
+  padding: 3em;
+}
+
+
+// padding with rems
+.p-rem-1 {
+  padding: 1rem;
+}
+.p-rem-2 {
+  padding: 2rem;
+}
+.p-rem-3 {
+  padding: 3rem;
+}
+
+.width-100 {
+  width: 100%;
+}
+.width-90 {
+  width: 90%;
+}
+.width-80 {
+  width: 80%;
+}
+.width-70 {
+  width: 70%;
+}
+.width-66 {
+  width: 66%;
+}
+.width-60 {
+  width: 60%;
+}
+.width-50 {
+  width: 50%;
+}
+.width-40 {
+  width: 40%;
+}
+.width-33 {
+  width: 33%;
+}
+.width-30 {
+  width: 30%;
+}
+.width-20 {
+  width: 20%;
+}
+.width-10 {
+  width: 10%;
+}
+
+/* some z-index helpers */
+.z-0 {
+  z-index: 0;
+}
+.z-1 {
+  z-index: 1;
+}
+.z-100 {
+  z-index: 100;
+}
+.z-1000 {
+  z-index: 1000;
+}
+.z-neg-1 {
+  z-index: -1;
+}

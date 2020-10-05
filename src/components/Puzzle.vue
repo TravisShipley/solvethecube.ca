@@ -6,7 +6,7 @@
 import * as THREE from "three";
 
 // TODO these imports used to work
-// import { gsap } from "gsap";
+import { gsap } from "gsap";
 // import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // gsap.registerPlugin(ScrollTrigger);
@@ -14,7 +14,7 @@ import * as THREE from "three";
 import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
 
-export default {
+var Puzzle = {
   name: "Puzzle",
   data() {
     return {
@@ -26,13 +26,12 @@ export default {
       lights: null,
       container: null,
       timeline: null,
-      scrollY: 0,
-      puzzleState: "tomato"
+      scrollY: 0
     };
   },
   methods: {
     init() {
-      console.log("Initialized", gsap);
+      console.log("Initialized");
 
       this.container = document.getElementById("container");
 
@@ -63,22 +62,8 @@ export default {
       for (let light of this.lights) {
         this.scene.add(light);
       }
-      this.render();
-      // this.animate();
-
-      this.timeline = gsap.timeline({
-        scrollTrigger: {
-          // markers: true,
-          trigger: "#container",
-          start: "center 400px",
-          end: "+=700",
-          scrub: 1,
-          pin: true,
-          pinSpacing: false
-        }
-      });
-
-      // this.timeline.add(this.spinAnimation());
+      // this.render();
+      this.animate();
     },
     animate: function() {
       requestAnimationFrame(this.animate);
@@ -105,12 +90,12 @@ export default {
         g: c.g,
         b: c.b
       });
-      gsap.to("#container", {
-        duration: 3,
-        opacity: 0.1
-      });
     },
-
+    changeColor(c) {
+      if (!c) {
+        throw "No color defined";
+      }
+    },
     edges: function() {
       this.mesh.material = new THREE.MeshPhongMaterial({ color: 0x4411dd });
     },
@@ -123,7 +108,8 @@ export default {
       requestAnimationFrame(this.render);
     },
     onWindowResize: function() {
-      let size = Math.min(this.container.clientWidth, 650);
+      // let size = Math.min(this.container.clientWidth, 650);
+      let size = this.container.clientWidth;
       // console.log("window did resize", size);
       this.renderer.setSize(size, size);
       this.camera.updateProjectionMatrix();
@@ -168,26 +154,14 @@ export default {
     window.removeEventListener("resize", this.onWindowResize);
   }
 };
+
+export default Puzzle;
 </script>
 
 <style lang="scss" scoped>
 #container {
-  background: rgba(200, 128, 128, 0.4);
-  position: absolute;
-  top: 50vh;
-  left: 50vw;
-  // margin-top: -6rem;
-  // margin-bottom: -6rem;
-  // margin-left: 6rem;
-  width: 50vmax;
-  filter: drop-shadow(0 20px 30px #30022822);
-}
-@media screen and (min-width: 650px) {
-  #container {
-    // top: -vw;
-    // left: 0;
-    // margin-left: 350px;
-    width: 650px;
-  }
+  width: 100%;
+  // background: rgba(200, 128, 128, 0.4);
+  // filter: drop-shadow(0 20px 30px #30022855);
 }
 </style>

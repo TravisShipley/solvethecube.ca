@@ -8,17 +8,43 @@
 export default {
   name: "PageProgress",
   props: {
-    progress: {
-      type: Number,
-      default: 0
+    height: {
+      value: String,
+      default: "100%"
     }
   },
+  data() {
+    return {
+      progress: 0
+    };
+  },
   computed: {
-    style() {
+    style: function() {
       let p = "width: " + this.progress + "%";
       console.log(p);
       return p;
+    },
+    endHeight: function() {
+      return "+=" + this.height;
     }
+  },
+  methods: {
+    init() {
+      let tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: this.$parent.$el,
+          // markers: true,
+          pin: true, // pin the trigger element while active
+          start: "top top", // when the top of the trigger hits the top of the viewport
+          end: this.endHeight,
+          scrub: 0.1
+        }
+      });
+      tl.to(this, { ease: "none", progress: 100 });
+    }
+  },
+  mounted() {
+    this.init();
   }
 };
 </script>

@@ -1,12 +1,10 @@
 <template>
   <div class="scroll-prompt">
     <div>SCROLL DOWN</div>
-    <div>^</div>
   </div>
 </template>
 
 <script>
-
 export default {
   name: "ScrollPrompt"
 };
