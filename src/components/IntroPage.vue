@@ -3,8 +3,12 @@
     <div class="page page--intro">
       <PageProgress />
       <div class="page__content">
-        <h2 class="title title--intro">But first...</h2>
-        <h3>Let's learn a bit about how the cube works.</h3>
+        <div class="slide">
+          <h1 class="title title--intro">But first...</h1>
+          <h3>
+            It's helpful to know a little bit about how the cube actually works.
+          </h3>
+        </div>
         <p>
           The cube has only
           <span class="highlight highlight--types">3 types of pieces...</span>

@@ -21,7 +21,6 @@ export default {
   computed: {
     style: function() {
       let p = "width: " + this.progress + "%";
-      console.log(p);
       return p;
     },
     endHeight: function() {

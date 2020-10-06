@@ -5,7 +5,7 @@
         <h1 class="title title--main z-100">Solve The Cube</h1>
         <h2 class="tagline z-100">
           <span>Learn to solve a Rubik's Cube in the next&nbsp;</span>
-          <span class="nowrap">45 minutes&nbsp;</span
+          <span class="nowrap">30 minutes&nbsp;</span
           ><span>with these&nbsp;</span>
           <span class="easy-steps nowrap">8 easy steps.</span>
         </h2>

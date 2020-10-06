@@ -8,7 +8,7 @@ export class Cube {
     Cube.BLACK = 0x221112;
 
     this.material = new THREE.MeshPhongMaterial({
-      color: 0x221112,
+      color: 0xfca600,
       transparent: true
     });
     // this.material = new THREE.MeshPhongMaterial({ color: 0x7aeb94 });
@@ -16,8 +16,7 @@ export class Cube {
   }
 
   hello() {
-    // return "hello";
-    console.log("hello");
+    return "Cube says hello";
   }
 }
 
