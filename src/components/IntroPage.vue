@@ -76,7 +76,21 @@ var IntroPage = {
       //   }
       // });
       // tl.to(this, { ease: "none", progress: 100 });
+      console.log("introPage innit?");
+
+      gsap.from(".page__content", {
+        scrollTrigger: {
+          trigger: ".page__content",
+          start: "top bottom-=200px",
+          toggleActions: "play none none reverse"
+        },
+        x: "-200",
+        opacity: 0
+      });
     }
+  },
+  mounted: function() {
+    this.init();
   }
 };
 
@@ -94,5 +108,28 @@ section {
     // background: rgba(255, 255, 255, 0.596);
     // padding: 0 0.1em 0.1em 0.1em;
   }
+}
+.highlight {
+  position: relative;
+  color: black;
+}
+.highlighted:before {
+  width: 100%;
+}
+.highlight:before {
+  // content: "3 types of pieces...";
+  // display: inline-block;
+  // position: absolute;
+  // left: 0;
+  // z-index: 10;
+  // white-space: nowrap;
+  // width: 100%;
+  // overflow: hidden;
+  // color: white;
+  // font-weight: bold;
+  // background: gold;
+  // padding: 0.3em;
+  // margin: -0.3em;
+  // transition: width 300ms ease-in-out, padding 100ms, margin 100ms;
 }
 </style>

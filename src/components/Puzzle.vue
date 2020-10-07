@@ -28,6 +28,7 @@ var Puzzle = {
       container: null,
       canvas: null,
       timeline: null,
+      origin: null,
       size: 600,
       scrollY: 0
     };
@@ -88,11 +89,21 @@ var Puzzle = {
     },
 
     spinAnimation: function() {
+      // TODO work out how to make this spin from the curren position
       return gsap.to(this.mesh.rotation, {
         duration: 1,
-        x: "+=2",
-        y: "+=2.33",
-        z: "+=3",
+        x: (i, t) => {
+          console.log(t.x);
+          return "+=1";
+        },
+        y: (i, t) => {
+          console.log(t.y);
+          return "+=1";
+        },
+        z: (i, t) => {
+          console.log(t.z);
+          return "+=1";
+        },
         repeatRefresh: true,
         ease: "inOut"
       });
@@ -111,10 +122,11 @@ var Puzzle = {
       // this.mesh.material = new THREE.MeshPhongMaterial({ color: 0x11dd44 });
       this.changeColor(0x11dd44);
     },
+
     changeSize() {
-      // this.size -= 100;
       console.log(this.size);
     },
+
     changeColor(c) {
       if (!c) {
         throw new Error('No color given to "Puzzle.changeColor"');
@@ -131,6 +143,7 @@ var Puzzle = {
         b: color.b
       });
     },
+
     spinIndefinitely() {
       return gsap.to(this.mesh.rotation, {
         duration: 2,
@@ -187,6 +200,7 @@ export default Puzzle;
 #container {
   width: 100%;
   height: 100%;
+  transform-origin: center right;
   // border: 10px solid turquoise;
   // filter: drop-shadow(0 20px 30px #30022855);
 }

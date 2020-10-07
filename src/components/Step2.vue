@@ -2,7 +2,7 @@
   <section>
     <div class="page page--step2">
       <PageProgress />
-      <h2 class="title title--step2"><span>2.</span> The White Cross</h2>
+      <h1 class="title title--step2"><span>2. </span>The White Cross</h1>
       <div class="page__content"></div>
     </div>
   </section>

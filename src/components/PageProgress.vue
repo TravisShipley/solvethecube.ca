@@ -54,6 +54,6 @@ export default {
 }
 .line {
   background: #fff;
-  height: 10px;
+  height: 0.33em;
 }
 </style>

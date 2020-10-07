@@ -2,7 +2,7 @@
   <section>
     <div class="page page--step3">
       <PageProgress :height="'50%'" />
-      <h2 class="title title--step3"><span>3.</span>Yellow Corners</h2>
+      <h1 class="title title--step3"><span>3. </span>The Bottom Layer</h1>
       <div class="page__content"></div>
     </div>
   </section>
