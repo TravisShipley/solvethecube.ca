@@ -1,30 +1,44 @@
 <template>
-  <section>
-    <div class="page page--intro">
+  <section class="page page--intro-page">
+    <div class="page__wrapper">
       <PageProgress />
+      <h1 class="title title--intro">But first...</h1>
       <div class="page__content">
         <div class="slide">
-          <h1 class="title title--intro">But first...</h1>
           <h3>
-            It's helpful to know a little bit about how the cube actually works.
+            Let's learn a little bit about how the cube works.
           </h3>
         </div>
         <p>
-          The cube has only
-          <span class="highlight highlight--types">3 types of pieces...</span>
+          There are 6 faces on the cube and each face is made up of
+          <span class="nowrap">
+            3 types of pieces.
+          </span>
         </p>
 
-        <h4 class="highlight highlight--corners">Corners</h4>
+        <h4>
+          <HighlightedText>
+            Corners
+          </HighlightedText>
+        </h4>
         <p class="piece-description piece-description--corner">
           These have 3 colours. There are 8 of them and they can only be swapped
           with other corner pieces.
         </p>
-        <h4 class="highlight highlight--edges">Edges</h4>
+        <h4>
+          <HighlightedText>
+            Edges
+          </HighlightedText>
+        </h4>
         <p class="piece-description piece-description--edge">
           have only 2 colours. There are 16 edges and they only swap with other
           edges.
         </p>
-        <h4 class="highlight highlight--centers">Centers</h4>
+        <h4>
+          <HighlightedText>
+            Centers
+          </HighlightedText>
+        </h4>
         <p class="piece-description piece-description--center">
           There are <span>6 center pieces</span>. Centers are unique because
           they are attached to the core of the cube. They can rotate but they
@@ -38,6 +52,7 @@
 
 <script>
 import PageProgress from "./PageProgress";
+import HighlightedText from "./HighlightedText";
 
 // import { gsap } from "gsap";
 // import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -47,6 +62,7 @@ import PageProgress from "./PageProgress";
 var IntroPage = {
   name: "IntroPage",
   components: {
+    HighlightedText,
     PageProgress
   },
   data() {
@@ -65,17 +81,6 @@ var IntroPage = {
       console.log("centers");
     },
     init() {
-      // let tl = gsap.timeline({
-      //   scrollTrigger: {
-      //     trigger: this,
-      //     // markers: true,
-      //     pin: true, // pin the trigger element while active
-      //     start: "top top", // when the top of the trigger hits the top of the viewport
-      //     end: () => "+=100%",
-      //     scrub: true
-      //   }
-      // });
-      // tl.to(this, { ease: "none", progress: 100 });
       console.log("introPage innit?");
 
       gsap.from(".page__content", {
@@ -100,36 +105,5 @@ export default IntroPage;
 <style lang="scss" scoped>
 section {
   background: rgb(92, 186, 230);
-}
-.piece-description {
-  span {
-    font-weight: bold;
-    // font-size: 1.1em;
-    // background: rgba(255, 255, 255, 0.596);
-    // padding: 0 0.1em 0.1em 0.1em;
-  }
-}
-.highlight {
-  position: relative;
-  color: black;
-}
-.highlighted:before {
-  width: 100%;
-}
-.highlight:before {
-  // content: "3 types of pieces...";
-  // display: inline-block;
-  // position: absolute;
-  // left: 0;
-  // z-index: 10;
-  // white-space: nowrap;
-  // width: 100%;
-  // overflow: hidden;
-  // color: white;
-  // font-weight: bold;
-  // background: gold;
-  // padding: 0.3em;
-  // margin: -0.3em;
-  // transition: width 300ms ease-in-out, padding 100ms, margin 100ms;
 }
 </style>

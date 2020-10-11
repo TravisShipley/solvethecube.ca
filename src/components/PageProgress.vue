@@ -15,31 +15,31 @@ export default {
   },
   data() {
     return {
-      progress: 0
+      progress: 84
     };
   },
   computed: {
     style: function() {
-      let p = "width: " + this.progress + "%";
-      return p;
+      return `width:${this.progress}%`;
     },
     endHeight: function() {
-      return "+=" + this.height;
+      return `+=${this.height}`;
     }
   },
   methods: {
     init() {
-      let tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: this.$parent.$el,
-          // markers: true,
-          pin: true, // pin the trigger element while active
-          start: "top top", // when the top of the trigger hits the top of the viewport
-          end: this.endHeight,
-          scrub: 0.1
-        }
-      });
-      tl.to(this, { ease: "none", progress: 100 });
+      console.log("PageProgress init");
+      //   let tl = gsap.timeline({
+      //     scrollTrigger: {
+      //       trigger: this.$parent.$el,
+      //       // markers: true,
+      //       pin: true, // pin the trigger element while active
+      //       start: "top top", // when the top of the trigger hits the top of the viewport
+      //       end: this.endHeight,
+      //       scrub: true
+      //     }
+      //   });
+      //   tl.to(this, { ease: "none", progress: 100 });
     }
   },
   mounted() {
@@ -51,9 +51,11 @@ export default {
 <style lang="scss" scoped>
 .progress {
   overflow: hidden;
+  padding-top: 0.5rem;
+  padding: 0.5rem 1rem;
 }
 .line {
   background: #fff;
-  height: 0.33em;
+  height: 0.4rem;
 }
 </style>

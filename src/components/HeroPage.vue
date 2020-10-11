@@ -1,8 +1,8 @@
 <template>
-  <section>
-    <div class="page page--title-page">
+  <section class="page page--hero-page">
+    <div class="page__wrapper">
       <div class="page__contents">
-        <h1 class="title title--main z-100">Solve The Cube</h1>
+        <h1 class="title title--hero">Solve The Cube</h1>
         <h2 class="tagline z-100">
           <span>Learn to solve a Rubik's Cube in the next&nbsp;</span>
           <span class="nowrap">30 minutes&nbsp;</span
@@ -18,7 +18,7 @@
 <script>
 import ScrollPrompt from "./ScrollPrompt";
 export default {
-  name: "SolveTheCube",
+  name: "HeroPage",
 
   components: {
     ScrollPrompt
@@ -27,7 +27,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.title--main {
+.title--hero {
   position: absolute;
   top: 1rem;
   left: 1rem;
@@ -37,6 +37,8 @@ export default {
   text-align: left;
   font-weight: 900;
   line-height: 0.8;
+  background: none;
+  z-index: 100;
   text-shadow: 0 0.33rem 1rem rgba(25, 41, 64, 0.22),
     0.2rem 0.2rem 0 rgba(255, 163, 163, 0.5);
   @media screen and (min-width: 900px) {

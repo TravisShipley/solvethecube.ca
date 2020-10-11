@@ -1,5 +1,5 @@
 <template>
-  <div class="page page--step1">
+  <div class="page page--cheat">
     <h1 class="title title--step1"><span>1.</span>The Daisy</h1>
     <h1>Modular Scale</h1>
     <h2>Modular Scale</h2>
@@ -15,7 +15,7 @@ export default {};
 </script>
 
 <style lang="scss" scoped>
-.page--step1 {
+.page--cheat {
   background: rgb(255, 191, 73);
 }
 </style>

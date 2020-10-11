@@ -1,7 +1,5 @@
 <template>
-  <div id="container" width="size" height="size" @click="changeSize">
-    <canvas id="canvas"></canvas>
-  </div>
+  <div ref="container" class="puzzle-container"></div>
 </template>
 
 <script>
@@ -12,7 +10,7 @@ import * as THREE from "three";
 // import { ScrollTrigger } from "gsap/ScrollTrigger";
 // gsap.registerPlugin(ScrollTrigger);
 
-import Cube from "../js/Cube.js";
+// import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
 
 var Puzzle = {
@@ -22,16 +20,23 @@ var Puzzle = {
       camera: null,
       scene: null,
       renderer: null,
-      mesh: null,
+      material: null,
       cube: null,
       lights: null,
       container: null,
       canvas: null,
       timeline: null,
       origin: null,
-      size: 600,
+      size: null,
+      foo: null,
       scrollY: 0
     };
+  },
+  props: {
+    state: {
+      type: String,
+      default: "SOLVED"
+    }
   },
   computed: {
     // size: {
@@ -40,11 +45,12 @@ var Puzzle = {
     //   }
     // }
   },
+
   methods: {
     init() {
       console.log("Initialized");
 
-      this.container = document.getElementById("container");
+      this.container = this.$refs.container;
       console.log(this.container.width);
       this.canvas = document.getElementById("canvas");
       this.scene = new THREE.Scene();
@@ -52,34 +58,42 @@ var Puzzle = {
       this.camera.position.set(0, 0, 5);
 
       this.renderer = new THREE.WebGLRenderer({
-        canvas: this.canvas,
-        // antialias: true,
+        antialias: true,
         alpha: true
       });
 
       this.renderer.setSize(this.container.width, this.container.height);
-      // this.container.appendChild(this.renderer.domElement);
+      this.container.appendChild(this.renderer.domElement);
       this.canvas = this.renderer.domElement;
 
       // the lighting setup
       this.lights = new Lighting();
 
       // create a new cube
-      this.cube = new Cube();
-      this.mesh = this.cube.mesh;
-      this.mesh.rotation.set(1, 1, 1);
+
+      this.material = new THREE.MeshPhongMaterial({
+        color: 0xfca600,
+        transparent: true
+      });
+      this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), this.material);
+
+      this.cube.rotation.set(1, 1, 1);
 
       // add the cube to the scene
-      this.scene.add(this.cube.mesh);
+      this.scene.add(this.cube);
 
       // add all the lights
       for (let light of this.lights) {
         this.scene.add(light);
       }
+      console.log("puzzle state:", this.state);
+      this.setState();
+
       this.render();
       // this.animate();
     },
     render: function() {
+      this.resizeCanvasToDisplaySize();
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(this.render);
     },
@@ -90,7 +104,7 @@ var Puzzle = {
 
     spinAnimation: function() {
       // TODO work out how to make this spin from the curren position
-      return gsap.to(this.mesh.rotation, {
+      return gsap.to(this.cube.rotation, {
         duration: 1,
         x: (i, t) => {
           console.log(t.x);
@@ -114,20 +128,44 @@ var Puzzle = {
     },
 
     showOnlyTheEdges: function() {
-      // this.mesh.material = new THREE.MeshPhongMaterial({ color: 0x4411dd });
+      // this.cube.material = new THREE.MeshPhongMaterial({ color: 0x4411dd });
       this.changeColor(0x4411dd);
     },
 
     showOnlyTheCenters: function() {
-      // this.mesh.material = new THREE.MeshPhongMaterial({ color: 0x11dd44 });
+      // this.cube.material = new THREE.MeshPhongMaterial({ color: 0x11dd44 });
       this.changeColor(0x11dd44);
     },
 
     changeSize() {
-      console.log(this.size);
+      // gsap.to(this.canvas, {
+      //   // x: "-=300",
+      //   attr: { width: 600, height: 600 }
+      // });
     },
 
-    changeColor(c) {
+    setState: function() {
+      console.log("State set to", this.state);
+      switch (this.state) {
+        case "DAISY":
+          this.changeColor(0xeb4034);
+          break;
+        case "SOLVED":
+          this.changeColor(0x008888);
+          break;
+
+        case "PRE_DAISY_1":
+          console.log("pre daisy state");
+          this.changeColor(0x345098);
+          break;
+        default:
+          console.log("DEFAULT PUZZLE STATE");
+          this.changeColor(0x112222);
+          break;
+      }
+    },
+
+    changeColor: function(c) {
       if (!c) {
         throw new Error('No color given to "Puzzle.changeColor"');
       }
@@ -136,7 +174,7 @@ var Puzzle = {
         throw new Error('Invalid color given to "Puzzle.changeColor"');
       }
       console.log("Change color to", color);
-      return gsap.to(this.mesh.material.color, {
+      return gsap.to(this.cube.material.color, {
         duration: 1,
         r: color.r,
         g: color.g,
@@ -144,8 +182,8 @@ var Puzzle = {
       });
     },
 
-    spinIndefinitely() {
-      return gsap.to(this.mesh.rotation, {
+    spinIndefinitely: function() {
+      return gsap.to(this.cube.rotation, {
         duration: 2,
         x: "+=random(2,3)",
         y: "+=random(2,3)",
@@ -158,11 +196,10 @@ var Puzzle = {
     resizeCanvasToDisplaySize: function() {
       // TODO this needs fixing still
       // look up the size the canvas is being displayed
-      const displaySize = this.container.clientWidth;
-      const width = this.canvas.width;
+      const displaySize = this.canvas.clientWidth;
 
       // adjust displayBuffer size to match
-      if (width !== displaySize) {
+      if (this.canvas.width !== displaySize) {
         // you must pass false here or three.js sadly fights the browser
         this.renderer.setSize(displaySize, displaySize, false);
         this.camera.updateProjectionMatrix();
@@ -172,12 +209,14 @@ var Puzzle = {
       return "Puzzle says hello";
     }
   },
+
   created() {
     console.log("Puzzle created.");
   },
 
   mounted() {
-    console.log("Puzzle did mount");
+    console.log("Puzzle did mount", this.state);
+    console.log("Puzzle did foo", this.fubar);
     this.$nextTick(function() {
       window.addEventListener("resize", this.resizeCanvasToDisplaySize);
 
@@ -196,12 +235,16 @@ var Puzzle = {
 export default Puzzle;
 </script>
 
-<style lang="scss" scoped>
-#container {
+<style lang="scss">
+.puzzle-container {
   width: 100%;
   height: 100%;
+  max-width: 90vmin;
   transform-origin: center right;
-  // border: 10px solid turquoise;
-  // filter: drop-shadow(0 20px 30px #30022855);
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>
