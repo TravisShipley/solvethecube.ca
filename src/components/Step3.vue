@@ -1,7 +1,7 @@
 <template>
   <section class="page step">
     <div class="page__wrapper">
-      <PageProgress />
+      <ProgressBar />
       <h1 class="title title--step3"><span>3. </span>The First Layer</h1>
       <h1 class="title">4. The Second Layer</h1>
       <h1 class="title">5. The Yellow Cross</h1>
@@ -14,12 +14,12 @@
 </template>
 
 <script>
-import PageProgress from "./PageProgress";
+import ProgressBar from "./ProgressBar";
 
 export default {
   name: "Step3",
   components: {
-    PageProgress
+    ProgressBar
   },
   methods: {
     init() {

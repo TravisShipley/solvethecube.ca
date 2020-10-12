@@ -1,17 +1,17 @@
 <template>
   <section class="page page--intro-page">
     <div class="page__wrapper">
-      <PageProgress />
+      <ProgressBar />
       <h1 class="title title--intro">But first...</h1>
       <div class="page__content">
         <div class="slide">
           <h3>
-            Let's learn a little bit about how the cube works.
+            Let's learn a bit about how the cube works.
           </h3>
         </div>
         <p>
           There are 6 faces on the cube and each face is made up of
-          <span class="nowrap">
+          <span class="nowrap bold">
             3 types of pieces.
           </span>
         </p>
@@ -31,8 +31,8 @@
           </HighlightedText>
         </h4>
         <p class="piece-description piece-description--edge">
-          have only 2 colours. There are 16 edges and they only swap with other
-          edges.
+          There are only 2 colours on each edge. There are 16 edges and they
+          only swap with other edges.
         </p>
         <h4>
           <HighlightedText>
@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import PageProgress from "./PageProgress";
+import ProgressBar from "./ProgressBar";
 import HighlightedText from "./HighlightedText";
 
 // import { gsap } from "gsap";
@@ -63,7 +63,7 @@ var IntroPage = {
   name: "IntroPage",
   components: {
     HighlightedText,
-    PageProgress
+    ProgressBar
   },
   data() {
     return {

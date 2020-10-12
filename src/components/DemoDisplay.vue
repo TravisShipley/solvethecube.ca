@@ -29,74 +29,69 @@ export default {
   data() {
     return {
       active: true,
-      timeline: null,
-      puzzleState: null
+      puzzleState: null,
+      timeline: null
     };
   },
 
   methods: {
     init: function() {
-      console.log("demo init");
-      console.log("demo props:", this.demo);
-      var tl = gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: this.$refs.demo,
-            start: "bottom bottom",
-            toggleActions: "play none none reset"
-          }
-        })
-        .from(
-          this.$refs.demo,
-          {
-            duration: 3,
-            scale: 0.1,
-            ease: "elastic.out"
-          },
-          0
-        )
-        .from(
-          this.$refs.demo,
-          {
-            duration: 0.3,
-            opacity: 0
-          },
-          0
-        )
-        .from(
-          this.$refs.bg,
-          {
-            duration: 2,
-            scale: 0.1,
-            ease: "elastic.out"
-          },
-          0
-        )
-        .to(this.$refs.bg, {
-          duration: 0.5,
-          scale: 0.5,
-          opacity: 0,
-          ease: "elastic.inOut"
-        })
-        .to(
-          this.$refs.demo,
-          {
-            duration: 0.5,
-            ease: "back.inOut",
-            top: 0,
-            x: 0,
-            right: "1em",
-            width: "6em"
-          },
-          "<"
-        )
-        .add(this.$refs.demoPuzzle.spinIndefinitely(), 0);
+      this.$emit("complete");
+      // var tl = gsap
+      //   .timeline({
+      //     scrollTrigger: {
+      //       trigger: this.$refs.demo,
+      //       start: "bottom bottom",
+      //       toggleActions: "play none none reset"
+      //     }
+      //   })
+      //   .from(
+      //     this.$refs.demo,
+      //     {
+      //       duration: 3,
+      //       scale: 0.1,
+      //       ease: "elastic.out"
+      //     },
+      //     0
+      //   )
+      //   .from(
+      //     this.$refs.demo,
+      //     {
+      //       duration: 0.3,
+      //       opacity: 0
+      //     },
+      //     0
+      //   )
+      //   .from(
+      //     this.$refs.bg,
+      //     {
+      //       duration: 2,
+      //       scale: 0.1,
+      //       ease: "elastic.out"
+      //     },
+      //     0
+      //   )
+      //   .to(this.$refs.bg, {
+      //     duration: 0.5,
+      //     scale: 0.5,
+      //     opacity: 0,
+      //     ease: "elastic.inOut"
+      //   })
+      //   .to(
+      //     this.$refs.demo,
+      //     {
+      //       duration: 0.5,
+      //       ease: "back.inOut",
+      //       top: 0,
+      //       x: 0,
+      //       right: "1em",
+      //       width: "6em"
+      //     },
+      //     "<"
+      //   )
+      //   .add(this.$refs.demoPuzzle.spinIndefinitely(), 0);
 
       // this.timeline
-    },
-
-    expand: function() {
-      console.log(this.isActive);
     }
   },
 
@@ -113,10 +108,11 @@ export default {
 
   created() {
     this.puzzleState = this.state;
+    console.log("DEMO PUZZLE CREATED");
   },
 
   mounted() {
-    // this.init();
+    this.init();
   }
 };
 </script>
@@ -154,6 +150,23 @@ export default {
     font-weight: bold;
     margin-left: -20%;
     margin-right: -20%;
+  }
+
+  &__progress {
+    background: dimgray;
+    height: 1em;
+    width: 60vw;
+  }
+  &__bar {
+    width: 50%;
+    background: antiquewhite;
+    height: 100%;
+  }
+  &__thumb {
+    background: white;
+    height: 100%;
+    width: 1em;
+    float: right;
   }
 }
 </style>

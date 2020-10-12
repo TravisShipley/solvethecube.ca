@@ -44,7 +44,7 @@ export default {
       console.log("App initialized");
       // console.log(this.$refs.heroPuzzle.canvas);
       const hp = this.$refs.heroPuzzle;
-      var heroSpin = hp.spinIndefinitely();
+      var heroSpin = hp.spinContinuously();
 
       const pages = gsap.utils.toArray(".page");
       const steps = document.querySelectorAll(".step");

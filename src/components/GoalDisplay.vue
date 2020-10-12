@@ -1,15 +1,16 @@
 <template>
   <div ref="goal" class="goal">
-    <div ref="bg" class="goal__background" :style="{ backgroundColor }"></div>
-    <div class="goal__puzzle">
-      <Puzzle ref="goalPuzzle" :state="puzzleState" />
+    <div ref="container" class="goal__container">
+      <div ref="bg" class="goal__background" :style="{ backgroundColor }"></div>
+      <Puzzle ref="puzzle" :state="puzzleState" class="z-10 rel" />
     </div>
+    <h2 ref="description" class="goal__description" v-show="showDescription">
+      {{ goal.description }}
+    </h2>
   </div>
 </template>
 
 <script>
-import { bus } from "../main";
-
 import Puzzle from "./Puzzle";
 
 export default {
@@ -27,12 +28,23 @@ export default {
     return {
       active: true,
       timeline: null,
+      entrance: null,
+      showDescription: true,
       backgroundColor: null,
-      backgroundWidth: null,
-      backgroundHeight: null,
-      puzzleState: null,
-      description: null
+      puzzleState: null
     };
+  },
+
+  computed: {
+    isActive: {
+      get: function() {
+        return this.active;
+      },
+      set: function(value) {
+        this.active = value;
+        this.$emit("active", this.active);
+      }
+    }
   },
 
   methods: {
@@ -40,31 +52,47 @@ export default {
       console.log("goal init");
       console.log("goal props:", this.goal);
 
-      var spin = this.$refs.goalPuzzle.spinIndefinitely();
+      var spin = this.$refs.puzzle.spinAnimation();
 
-      var tl = gsap.timeline({
+      // animate the "goal puzzle" onto the screen
+      var entrance = gsap.timeline({
         scrollTrigger: {
           trigger: this.$refs.goal,
-          start: "bottom bottom",
-          toggleActions: "play none none none"
-        }
-      });
-      console.log("PAUSED:", tl.paused());
-      tl.from(
-        this.$refs.goal,
-        {
-          duration: 3,
-          scale: 0.1,
-          // x: "50%",
-          ease: "elastic.out"
+          start: "top center",
+          end: "top center",
+          markers: true,
+          once: true
+          // toggleActions: "play none none reset"
         },
-        0
-      )
+        onStart: this.isStarted
+      });
+
+      entrance
         .from(
           this.$refs.goal,
           {
             duration: 0.3,
             opacity: 0
+          },
+          0
+        )
+        .from(
+          this.$refs.description,
+          {
+            duration: 0.5,
+            opacity: 0,
+            y: "-=2em",
+            onComplete: this.isReady
+          },
+          1
+        )
+
+        .from(
+          this.$refs.container,
+          {
+            duration: 3,
+            scale: 0.1,
+            ease: "elastic.out"
           },
           0
         )
@@ -77,6 +105,31 @@ export default {
           },
           0
         )
+        .add(spin, 0);
+    },
+
+    isStarted: function() {
+      this.$emit("start");
+    },
+
+    isReady: function() {
+      this.$emit("ready");
+      // this.$refs.puzzle.spinContinuously();
+    },
+
+    minimize: function() {
+      // this.entrance.progress = 1;
+
+      var tl = gsap.timeline({
+        autoRemoveChildren: true,
+        onStart: () => this.$emit("minimized")
+      });
+
+      tl.to(this.$refs.description, {
+        duration: 0.2,
+        opacity: 0,
+        onComplete: this.toggleDescription
+      })
         .to(this.$refs.bg, {
           duration: 0.5,
           scale: 0.5,
@@ -89,6 +142,7 @@ export default {
             duration: 0.5,
             ease: "back.inOut",
             top: 0,
+            y: 0,
             x: 0,
             right: "1em",
             width: "6em",
@@ -96,31 +150,39 @@ export default {
           },
           "<"
         );
-      tl.add(spin, 0);
 
-      // gsap.delayedCall(3, tl.pause());
-      // console.log("PAUSED:_________", tl.paused());
+      // return tl;
     },
 
     isComplete: function() {
-      console.log("goal is complete.");
-      bus.$emit("GOAL_COMPLETE", true);
+      this.$emit("complete", "goal");
+      this.active = false;
     },
 
-    expand: function() {
-      console.log(this.isActive);
-      console.log(this.backgroundSize);
-    }
-  },
+    toggleDescription: function() {
+      this.showDescription = false;
+    },
 
-  computed: {
-    isActive: {
-      get: function() {
-        return this.active;
-      },
-      set: function(value) {
-        this.active = value;
+    getTimeline: function() {
+      if (!this.timeline) {
+        this.createTimeline();
       }
+      // this.timeline.add(this.$refs.puzzle.spinY());
+      return this.timeline;
+    },
+
+    createTimeline: function() {
+      this.timeline = gsap.timeline({
+        onComplete: this.minimize,
+        autoRemoveChildren: true
+      });
+      this.timeline
+        .add(this.$refs.puzzle.spinY())
+        .to(
+          this.$refs.goal,
+          { duration: 1, y: "-=5em", ease: "power3.inOut" },
+          0
+        );
     }
   },
 
@@ -138,7 +200,6 @@ export default {
 <style lang="scss">
 .goal {
   position: absolute;
-
   width: 25em;
   top: 20%;
   right: 50%;
@@ -151,21 +212,21 @@ export default {
   &__background {
     position: absolute;
     width: 100%;
-    height: 100%;
+    height: 0;
+    padding-bottom: 100%;
     border-radius: 50%;
     mix-blend-mode: overlay;
-    scale: 0.9;
+    transform: scale(0.9, 0.9);
   }
-  &__puzzle {
-    position: relative;
-    z-index: 10;
-  }
+
   &__description {
+    position: relative;
     color: #fff;
     text-align: center;
-    font-weight: bold;
-    margin-left: -20%;
-    margin-right: -20%;
+    margin-top: 2em;
+    z-index: 100;
+    // font-size: 1.5em;
+    // width: 20em;
   }
 }
 </style>

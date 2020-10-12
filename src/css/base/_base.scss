@@ -6,7 +6,8 @@
 
 html {
   overflow-x: hidden;
-  // scroll-snap-type: y mandatory;
+  background-image: url('../img/cubes.png');
+  // scroll-snap-type: y proximity;
 }
 
 // Fluid typography equations by Michael Riethmuller
@@ -35,9 +36,12 @@ html {
 body {
   font-family: "Lato", sans-serif;
   color: #222222;
-  // scroll-snap-type: y mandatory;
+  // scroll-snap-type: y proximity;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+section {
+  scroll-snap-align: start;
 }
 
 $font-scale: 1.175;
@@ -109,6 +113,10 @@ button {
 .nowrap {
   white-space: nowrap;
 }
+.bold {
+  font-weight: bold;
+}
+
 @import "margin_helpers";
 @import "position_helpers";
 @import "padding_helpers";

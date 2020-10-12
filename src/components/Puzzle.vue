@@ -103,23 +103,32 @@ var Puzzle = {
     },
 
     spinAnimation: function() {
-      // TODO work out how to make this spin from the curren position
+      // TODO work out how to make this spin from the current position
       return gsap.to(this.cube.rotation, {
-        duration: 1,
+        duration: 3,
         x: (i, t) => {
           console.log(t.x);
-          return "+=1";
+          return "+=3";
         },
         y: (i, t) => {
           console.log(t.y);
-          return "+=1";
+          return "+=8";
         },
         z: (i, t) => {
           console.log(t.z);
-          return "+=1";
+          return "+=2";
         },
         repeatRefresh: true,
-        ease: "inOut"
+        ease: "power3.out"
+      });
+    },
+
+    spinY: function() {
+      return gsap.to(this.cube.rotation, {
+        duration: 1,
+        y: () => {
+          return this.cube.rotation.y + 3;
+        }
       });
     },
 
@@ -175,14 +184,14 @@ var Puzzle = {
       }
       console.log("Change color to", color);
       return gsap.to(this.cube.material.color, {
-        duration: 1,
+        duration: 0,
         r: color.r,
         g: color.g,
         b: color.b
       });
     },
 
-    spinIndefinitely: function() {
+    spinContinuously: function() {
       return gsap.to(this.cube.rotation, {
         duration: 2,
         x: "+=random(2,3)",
@@ -239,7 +248,7 @@ export default Puzzle;
 .puzzle-container {
   width: 100%;
   height: 100%;
-  max-width: 90vmin;
+  // max-width: 90vmin;
   transform-origin: center right;
 
   canvas {
