@@ -154,8 +154,9 @@ export default {
 
   &__progress {
     background: dimgray;
-    height: 1em;
-    width: 60vw;
+    height: 2em;
+    margin: 0.5em 1em;
+    width: calc(100% - 2em);
   }
   &__bar {
     width: 50%;
@@ -165,8 +166,11 @@ export default {
   &__thumb {
     background: white;
     height: 100%;
+    // border-radius: 0.2em;
     width: 1em;
     float: right;
+
+    transform-origin: center center;
   }
 }
 </style>

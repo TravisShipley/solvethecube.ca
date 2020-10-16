@@ -6,12 +6,21 @@
   max-width: 1920px;
   
   &__content {
-    // float: left;
-    width: 50%;
-    padding: 1rem;
-    // border: 1px solid black;
-    @media screen and (max-width: 50em){
-      width: 100%;
+    padding: 0 1em;
+    padding-top: 50vh;
+    width: 25em;
+    // width: 20em;
+    // @media screen and (min-width: 50em){
+    //   width: 50%;
+    //   padding: 1rem;
+    // }
+    // p {
+    //   width: 20em;
+    //   margin: auto;
+    // }
+
+    @media (orientation:landscape ){
+      padding: 0 3em;
     }
   }
 

@@ -10,7 +10,7 @@ import * as THREE from "three";
 // import { ScrollTrigger } from "gsap/ScrollTrigger";
 // gsap.registerPlugin(ScrollTrigger);
 
-// import Cube from "../js/Cube.js";
+import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
 
 var Puzzle = {
@@ -22,6 +22,7 @@ var Puzzle = {
       renderer: null,
       material: null,
       cube: null,
+      model: null,
       lights: null,
       container: null,
       canvas: null,
@@ -48,7 +49,7 @@ var Puzzle = {
 
   methods: {
     init() {
-      console.log("Initialized");
+      console.log("\n\nPuzzle Init ====================================\n");
 
       this.container = this.$refs.container;
       console.log(this.container.width);
@@ -76,6 +77,8 @@ var Puzzle = {
         transparent: true
       });
       this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), this.material);
+
+      this.model = new Cube(this.state);
 
       this.cube.rotation.set(1, 1, 1);
 
@@ -132,62 +135,52 @@ var Puzzle = {
       });
     },
 
-    showOnlyTheCorners: function() {
-      this.changeColor(0xdd1144);
+    showOnlyCenters: function() {
+      return this.changeColor(0x6e2aad); // purple
     },
 
-    showOnlyTheEdges: function() {
-      // this.cube.material = new THREE.MeshPhongMaterial({ color: 0x4411dd });
-      this.changeColor(0x4411dd);
+    showOnlyEdges: function() {
+      return this.changeColor(0x156ead); // blue
     },
-
-    showOnlyTheCenters: function() {
-      // this.cube.material = new THREE.MeshPhongMaterial({ color: 0x11dd44 });
-      this.changeColor(0x11dd44);
-    },
-
-    changeSize() {
-      // gsap.to(this.canvas, {
-      //   // x: "-=300",
-      //   attr: { width: 600, height: 600 }
-      // });
+    showOnlyCorners: function() {
+      return this.changeColor(0xffd608); //gold
     },
 
     setState: function() {
-      console.log("State set to", this.state);
+      // console.log("State set to", this.state);
       switch (this.state) {
         case "DAISY":
-          this.changeColor(0xeb4034);
+          this.changeColor(0xeb4034, 0);
           break;
         case "SOLVED":
-          this.changeColor(0x008888);
+          this.changeColor(0x008888, 0);
           break;
 
         case "PRE_DAISY_1":
-          console.log("pre daisy state");
-          this.changeColor(0x345098);
+          this.changeColor(0x345098, 0);
           break;
         default:
-          console.log("DEFAULT PUZZLE STATE");
-          this.changeColor(0x112222);
+          this.changeColor(0x112222, 0);
           break;
       }
     },
 
-    changeColor: function(c) {
-      if (!c) {
+    changeColor: function(color, time = 1) {
+      if (!color) {
         throw new Error('No color given to "Puzzle.changeColor"');
       }
-      let color = new THREE.Color(c);
-      if (!color.isColor) {
+      let newColor = new THREE.Color(color);
+      if (!newColor.isColor) {
         throw new Error('Invalid color given to "Puzzle.changeColor"');
       }
+
       console.log("Change color to", color);
+
       return gsap.to(this.cube.material.color, {
-        duration: 0,
-        r: color.r,
-        g: color.g,
-        b: color.b
+        duration: time,
+        r: newColor.r,
+        g: newColor.g,
+        b: newColor.b
       });
     },
 
@@ -196,12 +189,68 @@ var Puzzle = {
         duration: 2,
         x: "+=random(2,3)",
         y: "+=random(2,3)",
-        z: "+=random(2,3)",
+        z: "+=random(0,1)",
         repeat: -1,
         repeatRefresh: true,
+        onRepeate: this.unspin,
         ease: "none"
       });
     },
+
+    spinOnce: function() {
+      return gsap.to(this.cube.rotation, {
+        duration: 1,
+        x: "+=2",
+        y: "+=3",
+        z: "+=1",
+        repeatRefresh: true,
+        repeat: -1,
+        ease: "none"
+      });
+    },
+
+    spinTo: function(x, y, z, time = 1) {
+      this.unspin();
+      console.log("Attempting to set Cube rotation to", x, y, z);
+      // if inputs are null maintain the same rotation
+      var newX = x == null ? this.cube.rotation.x : x;
+      var newY = y == null ? this.cube.rotation.y : y;
+      var newZ = z == null ? this.cube.rotation.z : z;
+
+      return gsap.to(this.cube.rotation, {
+        duration: time,
+        x: newX,
+        y: newY,
+        z: newZ,
+        onComplete: () => {
+          console.log(
+            "Cube rotation set to",
+            this.cube.rotation.x,
+            this.cube.rotation.y,
+            this.cube.rotation.z
+          );
+        }
+      });
+    },
+
+    unspin: function() {
+      var pi2 = Math.PI * 2;
+
+      var newX = this.cube.rotation.x % pi2;
+      var newY = this.cube.rotation.y % pi2;
+      var newZ = this.cube.rotation.z % pi2;
+
+      // newX = newX > 0 ? newX - pi2 : newX;
+      // newY = newY > 0 ? newY - pi2 : newY;
+      // newZ = newZ > 0 ? newZ - pi2 : newZ;
+      this.cube.rotation.set(newX, newY, newZ);
+      console.log(
+        `Unspin:
+        Cube rotation set to
+        ${this.cube.rotation.x}, ${this.cube.rotation.y}, ${this.cube.rotation.z}`
+      );
+    },
+
     resizeCanvasToDisplaySize: function() {
       // TODO this needs fixing still
       // look up the size the canvas is being displayed

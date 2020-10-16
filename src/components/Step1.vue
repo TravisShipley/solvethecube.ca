@@ -72,11 +72,11 @@ export default {
 
   methods: {
     init: function() {
-      console.log("Step 1 init", this.demoPuzzleState, this.goal.puzzleState);
+      const page = this.$refs.page;
 
       this.timeline = gsap.timeline({
         scrollTrigger: {
-          trigger: this.$refs.page,
+          trigger: page,
           scrub: 1,
           // markers: true,
           // once: true,
@@ -89,8 +89,8 @@ export default {
         }
       });
     }, // end init
-    onGoalActive: function(v) {
-      this.showDemo = v;
+    onGoalActive: function(value) {
+      this.showDemo = value;
     },
     onReady: function() {
       console.log("================\n\n\n\nGOAL IS READY TO MINIMIZE");
@@ -133,7 +133,6 @@ section {
   background: rgb(255, 191, 73);
 }
 h1 {
-  background: none;
   background: darken(saturate(rgb(255, 191, 73), 20%), 10%);
 }
 .page__footer {

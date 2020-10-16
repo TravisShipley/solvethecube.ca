@@ -1,97 +1,189 @@
 <template>
-  <section class="page page--intro-page">
+  <section ref="page" class="page page--intro-page">
     <div class="page__wrapper">
-      <ProgressBar />
+      <ProgressBar :progress="progress" />
+
       <h1 class="title title--intro">But first...</h1>
       <div class="page__content">
         <div class="slide">
-          <h3>
+          <h2>
             Let's learn a bit about how the cube works.
-          </h3>
+          </h2>
         </div>
-        <p>
-          There are 6 faces on the cube and each face is made up of
-          <span class="nowrap bold">
-            3 types of pieces.
-          </span>
-        </p>
 
-        <h4>
-          <HighlightedText>
-            Corners
-          </HighlightedText>
-        </h4>
-        <p class="piece-description piece-description--corner">
-          These have 3 colours. There are 8 of them and they can only be swapped
-          with other corner pieces.
-        </p>
-        <h4>
-          <HighlightedText>
-            Edges
-          </HighlightedText>
-        </h4>
-        <p class="piece-description piece-description--edge">
-          There are only 2 colours on each edge. There are 16 edges and they
-          only swap with other edges.
-        </p>
-        <h4>
-          <HighlightedText>
-            Centers
-          </HighlightedText>
-        </h4>
-        <p class="piece-description piece-description--center">
-          There are <span>6 center pieces</span>. Centers are unique because
-          they are attached to the core of the cube. They can rotate but they
-          never swap around. For example,
-          <span>The yellow center is always opposite the white center</span>
-        </p>
+        <div class="slide">
+          <h3>
+            <HighlightedText>
+              Centers
+            </HighlightedText>
+          </h3>
+          <p class="piece-description piece-description--center">
+            The 6 center pieces are attached to the core of the cube. They can
+            rotate but they never swap around. This means that
+            <span>the yellow face is always opposite the white face.</span>
+          </p>
+        </div>
+
+        <div class="slide">
+          <h3>
+            <HighlightedText>
+              Edges
+            </HighlightedText>
+          </h3>
+          <p class="piece-description piece-description--edge">
+            There are only 2 colours on the edge pieces, and each face has 4
+            edges.
+          </p>
+        </div>
+
+        <div class="slide">
+          <h3>
+            <HighlightedText>
+              Corners
+            </HighlightedText>
+          </h3>
+          <p class="piece-description piece-description--corner">
+            The corner pieces have 3 colours. Notice how the middle layer has NO
+            corner pieces.
+          </p>
+        </div>
       </div>
     </div>
+    <Puzzle ref="heroPuzzle" :state="puzzleState" class="hero-puzzle" />
   </section>
 </template>
 
 <script>
 import ProgressBar from "./ProgressBar";
 import HighlightedText from "./HighlightedText";
-
-// import { gsap } from "gsap";
-// import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-// gsap.registerPlugin(ScrollTrigger);
+import Puzzle from "./Puzzle";
 
 var IntroPage = {
   name: "IntroPage",
   components: {
     HighlightedText,
-    ProgressBar
+    ProgressBar,
+    Puzzle
   },
   data() {
     return {
-      cornerDescription: ""
+      cornerDescription: "",
+      progress: 0,
+      timeline: null,
+      heroTimeline: null,
+      scrollTriggers: null,
+      puzzleState: "SOLVED"
     };
   },
   methods: {
-    corners: function() {
-      console.log("corners");
-    },
-    edges: function() {
-      console.log("edges");
-    },
-    centers: function() {
-      console.log("centers");
-    },
     init() {
       console.log("introPage innit?");
+      const cube = this.$refs.heroPuzzle;
+      const page = this.$refs.page;
 
-      gsap.from(".page__content", {
-        scrollTrigger: {
-          trigger: ".page__content",
-          start: "top bottom-=200px",
-          toggleActions: "play none none reverse"
+      var spinning = cube.spinContinuously();
+
+      // Create the timeline for the hero animations
+      this.heroTimeline = gsap.timeline({
+        defaults: {
+          duration: 10
         },
-        x: "-200",
-        opacity: 0
+
+        scrollTrigger: {
+          trigger: "#app",
+          endTrigger: page,
+          start: "top+=10px top",
+          end: "bottom+=100%",
+          scrub: 0.5,
+          // invalidateOnRefresh: true,
+
+          // markers: {
+          //   startColor: "darkgreen",
+          //   endColor: "purple",
+          //   fontSize: "18px",
+          //   fontWeight: "bold",
+          //   indent: 20
+          // },
+
+          onLeave: () => {
+            console.log("LEAVE");
+          },
+
+          onEnter: () => {
+            console.log("STARTING");
+            spinning.kill();
+            cube.unspin();
+            this.heroTimeline.invalidate();
+          },
+
+          onLeaveBack: () => {
+            console.log("LEAVEBACK");
+            spinning = cube.spinContinuously();
+          }
+        }
       });
+
+      this.heroTimeline
+        .to(
+          ".hero-puzzle",
+          {
+            duration: 1,
+            // x: "10",
+            y: "+=100vh",
+            scale: 0.85,
+            ease: "back.inOut"
+          },
+          0
+        )
+        .add(cube.changeColor(0xee0231), 0)
+        .add(cube.spinTo(0.5, 2.5, 0), 0) // white face up
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
+        .add(function() {
+          console.log("\nCenters\n\n");
+        })
+        .add(cube.showOnlyCenters())
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
+        .add(function() {
+          console.log("\nEdges\n\n");
+        })
+        .add(cube.showOnlyEdges())
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
+        .add(function() {
+          console.log("\nCorners\n\n");
+        })
+        .add(cube.showOnlyCorners())
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<");
+
+      // page timeline
+      this.timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: page,
+          scrub: true,
+          pin: true,
+          end: "bottom+=100%",
+          // markers: true,
+          onUpdate: self => {
+            this.progress = self.progress;
+          }
+        }
+      });
+      this.timeline
+        .from(".slide", {
+          y: 100,
+          alpha: 0,
+          stagger: {
+            each: 1,
+            delay: function(index) {
+              return 2 * index;
+            }
+          }
+        })
+        .set({}, {}, "+=3");
+    },
+
+    getIntroTimeline: function() {
+      const cube = this.$refs.heroPuzzle;
+      return gsap.timeline();
     }
   },
   mounted: function() {
@@ -105,5 +197,33 @@ export default IntroPage;
 <style lang="scss" scoped>
 section {
   background: rgb(92, 186, 230);
+}
+
+h1 {
+  background: darken(rgb(92, 186, 230), 10%);
+}
+
+$puzzle-size: 100vmin;
+
+.hero-puzzle {
+  position: absolute;
+  width: $puzzle-size;
+  height: $puzzle-size;
+  transform-origin: center center;
+
+  top: -90vh;
+  left: 0;
+
+  @media screen and (min-width: 50em) {
+    width: 80vmin;
+    height: 80vmin;
+    right: 0;
+    left: auto;
+  }
+  @media screen and (min-width: 90em) {
+    right: auto;
+    left: 35em;
+    transform: scale(1.2);
+  }
 }
 </style>

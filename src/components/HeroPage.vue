@@ -10,7 +10,7 @@
           <span class="easy-steps nowrap">8 easy steps.</span>
         </h2>
       </div>
-      <ScrollPrompt />
+      <!-- <ScrollPrompt /> -->
     </div>
   </section>
 </template>
@@ -21,7 +21,7 @@ export default {
   name: "HeroPage",
 
   components: {
-    ScrollPrompt
+    // ScrollPrompt
   }
 };
 </script>
@@ -31,7 +31,7 @@ export default {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  font-size: 4em;
+  font-size: 25vmin;
   max-width: 5em;
   margin: 0;
   text-align: left;
@@ -39,10 +39,10 @@ export default {
   line-height: 0.8;
   background: none;
   z-index: 100;
-  text-shadow: 0 0.33rem 1rem rgba(25, 41, 64, 0.22),
-    0.2rem 0.2rem 0 rgba(255, 163, 163, 0.5);
-  @media screen and (min-width: 900px) {
-    font-size: 6em;
+  mix-blend-mode: overlay;
+  text-shadow: 0 0.33rem 1rem rgba(25, 41, 64, 1);
+  @media screen and (min-width: 50em) {
+    font-size: 20vmin;
   }
 }
 

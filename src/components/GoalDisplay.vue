@@ -60,9 +60,8 @@ export default {
           trigger: this.$refs.goal,
           start: "top center",
           end: "top center",
-          markers: true,
+          // markers: true,
           once: true
-          // toggleActions: "play none none reset"
         },
         onStart: this.isStarted
       });
