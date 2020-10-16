@@ -29,7 +29,6 @@ var Puzzle = {
       timeline: null,
       origin: null,
       size: null,
-      foo: null,
       scrollY: 0
     };
   },
@@ -147,7 +146,8 @@ var Puzzle = {
     },
 
     setState: function() {
-      // console.log("State set to", this.state);
+      console.log("State set to", this.state);
+
       switch (this.state) {
         case "DAISY":
           this.changeColor(0xeb4034, 0);
@@ -271,7 +271,6 @@ var Puzzle = {
 
   mounted() {
     console.log("Puzzle did mount", this.state);
-    console.log("Puzzle did foo", this.fubar);
     this.$nextTick(function() {
       window.addEventListener("resize", this.resizeCanvasToDisplaySize);
 

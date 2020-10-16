@@ -32,7 +32,7 @@ export default {
   top: 1rem;
   left: 1rem;
   font-size: 25vmin;
-  max-width: 5em;
+  max-width: 4em;
   margin: 0;
   text-align: left;
   font-weight: 900;

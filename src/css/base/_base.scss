@@ -18,18 +18,6 @@ html {
   }
 }
 
-@media screen and (min-width: 50em) {
-  html {
-    // font-size: calc(16px + (27 - 16) * (100vw - 400px) / (1440 - 400));
-  }
-}
-// min 1440px
-@media screen and (min-width: 90em) {
-  html {
-    // font-size: calc(16px + (32 - 16) * (100vw - 400px) / (1440 - 400));
-  }
-}
-
 body {
   font-family: "Lato", sans-serif;
   color: #222222;
@@ -103,7 +91,8 @@ button {
   background: none;
 }
 .title {
-  font-family: Montserrat-Black;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 900;
   color: #ffffff;
   margin: 0;
   padding: 0.5rem 1rem;
