@@ -83,7 +83,7 @@ var IntroPage = {
 
       var spinning = cube.spinContinuously();
 
-      // Create the timeline for the hero animations
+      // Create the timeline for the hero cube
       this.heroTimeline = gsap.timeline({
         defaults: {
           duration: 10
@@ -95,7 +95,6 @@ var IntroPage = {
           start: "top+=10px top",
           end: "bottom+=100%",
           scrub: 0.5,
-          // invalidateOnRefresh: true,
 
           // markers: {
           //   startColor: "darkgreen",
@@ -154,7 +153,7 @@ var IntroPage = {
         .add(cube.showOnlyCorners())
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<");
 
-      // page timeline
+      // Timeline for the intro page
       this.timeline = gsap.timeline({
         scrollTrigger: {
           trigger: page,
@@ -167,6 +166,7 @@ var IntroPage = {
           }
         }
       });
+
       this.timeline
         .from(".slide", {
           y: 100,
@@ -179,11 +179,6 @@ var IntroPage = {
           }
         })
         .set({}, {}, "+=3");
-    },
-
-    getIntroTimeline: function() {
-      const cube = this.$refs.heroPuzzle;
-      return gsap.timeline();
     }
   },
   mounted: function() {

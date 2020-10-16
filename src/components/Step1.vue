@@ -132,9 +132,11 @@ export default {
 section {
   background: rgb(255, 191, 73);
 }
+
 h1 {
   background: darken(saturate(rgb(255, 191, 73), 20%), 10%);
 }
+
 .page__footer {
   position: absolute;
   bottom: 0;

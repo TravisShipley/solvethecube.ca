@@ -240,9 +240,6 @@ var Puzzle = {
       var newY = this.cube.rotation.y % pi2;
       var newZ = this.cube.rotation.z % pi2;
 
-      // newX = newX > 0 ? newX - pi2 : newX;
-      // newY = newY > 0 ? newY - pi2 : newY;
-      // newZ = newZ > 0 ? newZ - pi2 : newZ;
       this.cube.rotation.set(newX, newY, newZ);
       console.log(
         `Unspin:
