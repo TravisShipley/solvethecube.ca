@@ -1,13 +1,52 @@
 <template>
   <div ref="demo" class="demo">
     <div class="demo__puzzle">
-      <Puzzle ref="demoPuzzle" :state="puzzleState" />
+      <Puzzle ref="puzzle" :state="puzzleState" />
     </div>
-
-    <div class="demo__progress">
-      <div class="demo__bar">
-        <div class="demo__thumb"></div>
+    <div class="controller">
+      <div class="controller__btn accent-color" @click="isPlaying = !isPlaying">
+        <font-awesome-icon icon="play" size="2x" v-show="!isPlaying" />
       </div>
+      <div class="scrubber">
+        <div
+          class="scrubber__container"
+          role="button"
+          ref="container"
+          @mouseover="onMouseOver"
+          @mouseleave="onMouseLeave"
+          @click="onClickScrubber($event)"
+        >
+          <div
+            class="scrubber__thumb controller__btn  accent-bg"
+            role="button"
+            ref="thumb"
+          ></div>
+        </div>
+      </div>
+      <div class="controller__btn  accent-color">
+        <font-awesome-icon icon="step-forward" size="2x" />
+      </div>
+      <div class="controller__btn  accent-color">
+        <font-awesome-icon icon="step-backward" size="2x" />
+      </div>
+    </div>
+    <div class="moves">
+      <div class="adj">
+        <font-awesome-icon icon="cube" size="1x" />
+      </div>
+      <div class="alg">
+        <span>L'</span><span>U</span><span>R</span><span>U'</span><span>L</span
+        ><span>U</span><span>R'</span>
+      </div>
+      <div class="adj">
+        <font-awesome-icon icon="cube" size="1x" />
+      </div>
+      <div class="alg fish">
+        <div class="name">The Fish</div>
+        <span>R</span><span>U</span><span>R'</span><span>U</span
+        ><span>R</span>U<span>2</span><span>R'</span>
+      </div>
+      <div class="info">Adjust the cube.</div>
     </div>
   </div>
 </template>
@@ -15,11 +54,24 @@
 <script>
 import Puzzle from "./Puzzle";
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faPlay,
+  faStepForward,
+  faStepBackward,
+  faSyncAlt,
+  faCube
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+library.add(faPlay, faStepForward, faStepBackward, faSyncAlt, faCube);
+
 export default {
   name: "DemoDisplay",
 
   components: {
-    Puzzle
+    Puzzle,
+    FontAwesomeIcon
   },
 
   props: {
@@ -28,73 +80,13 @@ export default {
 
   data() {
     return {
-      active: true,
+      active: false,
       puzzleState: null,
-      timeline: null
+      timeline: null,
+      message: null,
+      scrubPosition: null
     };
   },
-
-  methods: {
-    init: function() {
-      this.$emit("complete");
-      // var tl = gsap
-      //   .timeline({
-      //     scrollTrigger: {
-      //       trigger: this.$refs.demo,
-      //       start: "bottom bottom",
-      //       toggleActions: "play none none reset"
-      //     }
-      //   })
-      //   .from(
-      //     this.$refs.demo,
-      //     {
-      //       duration: 3,
-      //       scale: 0.1,
-      //       ease: "elastic.out"
-      //     },
-      //     0
-      //   )
-      //   .from(
-      //     this.$refs.demo,
-      //     {
-      //       duration: 0.3,
-      //       opacity: 0
-      //     },
-      //     0
-      //   )
-      //   .from(
-      //     this.$refs.bg,
-      //     {
-      //       duration: 2,
-      //       scale: 0.1,
-      //       ease: "elastic.out"
-      //     },
-      //     0
-      //   )
-      //   .to(this.$refs.bg, {
-      //     duration: 0.5,
-      //     scale: 0.5,
-      //     opacity: 0,
-      //     ease: "elastic.inOut"
-      //   })
-      //   .to(
-      //     this.$refs.demo,
-      //     {
-      //       duration: 0.5,
-      //       ease: "back.inOut",
-      //       top: 0,
-      //       x: 0,
-      //       right: "1em",
-      //       width: "6em"
-      //     },
-      //     "<"
-      //   )
-      //   .add(this.$refs.demoPuzzle.spinIndefinitely(), 0);
-
-      // this.timeline
-    }
-  },
-
   computed: {
     isActive: {
       get: function() {
@@ -103,10 +95,117 @@ export default {
       set: function(value) {
         this.active = value;
       }
+    },
+    isPlaying: {
+      get: function() {
+        return !this.timeline.paused();
+      },
+      set: function(play) {
+        if (play) {
+          this.playTimeline();
+        } else {
+          this.timeline.pause();
+        }
+        console.log("IS THE TIMELINE PLAYING:", play);
+      }
+    },
+    isFinished: function() {
+      return this.timeline.progress() == 1;
+    }
+  },
+  methods: {
+    init: function() {
+      this.$emit("complete");
+      let thumb = this.$refs.thumb;
+      let container = this.$refs.container;
+
+      this.timeline
+        .add(this.$refs.puzzle.spinX())
+        .add(this.$refs.puzzle.changeColor(0xd1ccc0), "<")
+        .add(this.$refs.puzzle.spinY())
+        .add(this.$refs.puzzle.changeColor(0x6ab04c), "<")
+        .add(this.$refs.puzzle.spinX())
+        .add(this.$refs.puzzle.changeColor(0x2f3542), "<");
+
+      Draggable.create(thumb, {
+        type: "x",
+        bounds: container,
+        edgeResistance: 0.75,
+        onClick: function(self) {
+          console.log("clicked the scrubber thumb");
+        },
+
+        onDragEnd: () => {
+          if (!this.timeline.paused) this.playTimeline();
+        },
+        onDrag: function(that) {
+          // make sure that we don't set the progress to less than 0
+          this.isPlaying = false;
+          let p = Math.max(0, this.x / this.maxX);
+          that.timeline.progress(p);
+        },
+        onDragParams: [this]
+      });
+
+      // this.playTimeline();
+    },
+    playTimeline() {
+      if (this.timeline.progress() == 1) this.timeline.restart();
+      else this.timeline.resume();
+
+      let xDistance =
+        this.$refs.container.clientWidth - this.$refs.thumb.clientWidth;
+
+      gsap.set(this.$refs.thumb, { x: xDistance * this.timeline.progress() });
+
+      gsap.to(this.$refs.thumb, {
+        duration: this.timeline.duration() - this.timeline.time(),
+        x: xDistance,
+        ease: "none"
+      });
+    },
+    onMouseOver() {
+      gsap.to(this.$refs.thumb, {
+        scale: 1.25,
+        duration: 0.2,
+        ease: "back.out"
+      });
+    },
+    onMouseLeave() {
+      gsap.to(this.$refs.thumb, {
+        scale: 1,
+        duration: 0.2,
+        ease: "back.out"
+      });
+    },
+    onClickScrubber(e) {
+      let offset = e.offsetX;
+      let t = this.$refs.thumb;
+      let containerSize = this.$refs.container.offsetWidth;
+
+      if (offset < t.offsetWidth) offset = 0;
+      else if (offset > containerSize - t.offsetWidth)
+        offset = containerSize - t.offsetWidth;
+      else offset -= t.offsetWidth / 2;
+
+      let position = e.offsetX / containerSize;
+      this.timeline.progress(position);
+
+      gsap.set(t, { x: offset });
+      gsap.killTweensOf(t);
+
+      if (!this.timeline.paused()) this.playTimeline();
     }
   },
 
   created() {
+    this.timeline = gsap.timeline({
+      paused: true,
+      onComplete: function() {
+        this.isPlaying = false;
+        console.log(this.isPlaying);
+      }
+    });
     this.puzzleState = this.state;
     console.log("DEMO PUZZLE CREATED");
   },
@@ -117,21 +216,32 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .demo {
-  position: absolute;
+  margin: 0 auto;
+  max-width: 40em;
+  min-width: 80%;
+  text-align: center;
 
-  width: 25em;
-  top: 20%;
-  right: 50%;
-  transform: translateX(50%);
+  backdrop-filter: blur(16px);
+  background: rgba(245, 238, 233, 0.88);
+  background: rgba(247, 243, 241, 0.8);
+  border-radius: 24px;
+  box-shadow: 8px 32px 32px -12px #3e0f0f33;
 
-  @media screen and (min-width: 50em) {
-    width: 20em;
-    // right: 3em;
-    // transform: none;
+  // @media screen and
+
+  &__puzzle {
+    position: relative;
+    max-width: 25em;
+    width: 90vmin;
+    padding: 1em;
+    margin: auto;
+    z-index: 10;
+    @media screen and (min-width: 50em) {
+      width: 25em;
+    }
   }
-
   &__background {
     position: absolute;
     width: 100%;
@@ -140,10 +250,6 @@ export default {
     mix-blend-mode: overlay;
     scale: 0.9;
   }
-  &__puzzle {
-    position: relative;
-    z-index: 10;
-  }
   &__description {
     color: #fff;
     text-align: center;
@@ -151,26 +257,111 @@ export default {
     margin-left: -20%;
     margin-right: -20%;
   }
+  .moves {
+    position: relative;
+    margin: 1em;
+    // font-size: 1.2em;
+    text-align: center;
+  }
 
-  &__progress {
-    background: dimgray;
-    height: 2em;
-    margin: 0.5em 1em;
-    width: calc(100% - 2em);
+  .alg {
+    position: relative;
+    display: inline-block;
+    padding: 0.2em 0.4em;
+    border-radius: 0.25em;
+    background: rgba(12, 12, 12, 0.1);
+    font-weight: bold;
+
+    span:not(:last-child) {
+      margin-right: 0.2em;
+    }
+    .name {
+      font-size: 0.6em;
+      padding: 0 0.6em;
+      position: absolute;
+      top: -1.2em;
+      left: 0;
+      display: inline-block;
+      color: rgba(18, 18, 18, 0.5);
+    }
+    &.fish {
+      background: rgba(240, 128, 128, 0.5);
+    }
+  }
+  .adj {
+    margin: 0.25em 0.5em;
+    display: inline-block;
+    svg {
+      color: rgba(12, 12, 12, 0.1);
+    }
+  }
+  .info {
+    margin: 1em;
+  }
+}
+$controller_size: 3em;
+$scrubber_size: 2em;
+.controller {
+  display: grid;
+  grid-template-columns: $controller_size 1fr $controller_size $controller_size;
+  // gap: 1em;
+  margin: 1em;
+  height: $controller_size;
+
+  &__btn {
+    color: tomato;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: $controller_size;
+    height: $controller_size;
+    cursor: pointer;
+    &:active {
+      background: rgba(255, 255, 255, 0.507);
+    }
+  }
+  &__btn:last-child {
+    align-items: left;
+  }
+}
+.scrubber {
+  background: rgba(29, 10, 2, 0.1);
+  height: $controller_size;
+  padding: ($controller_size - $scrubber_size) / 2;
+  border-radius: $scrubber_size/4;
+  box-shadow: inset 3px 6px 16px -2px rgba(62, 15, 15, 0.13);
+
+  &__container {
+    width: 100%;
+    height: 100%;
   }
   &__bar {
+    display: none;
     width: 50%;
-    background: antiquewhite;
+    background: rgb(0, 0, 0);
     height: 100%;
+    float: left;
   }
   &__thumb {
+    position: absolute;
+    border-radius: $scrubber_size/8;
+    background: rgba(255, 255, 255, 0.8);
+    opacity: 0.8;
     background: white;
-    height: 100%;
-    // border-radius: 0.2em;
-    width: 1em;
+    height: $scrubber_size;
+    width: $scrubber_size;
     float: right;
 
-    transform-origin: center center;
+    &:hover,
+    &:focus,
+    &:active {
+      transform-origin: center center;
+      transition-property: box-shadow, background-color, opacity;
+      transition-duration: 200ms;
+      transition-timing-function: ease-in-out;
+      outline: none;
+      opacity: 1;
+    }
   }
 }
 </style>

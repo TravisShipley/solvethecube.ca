@@ -1,25 +1,29 @@
 <template>
-  <section :id="pageId" ref="page" class="page">
-    <PageSticker :backgroundColor="stickerColor" :transform="stickerRotation" />
+  <section id="id" ref="page" class="page {id}">
+    <PageSticker />
+    <!-- :sticker="sticker" -->
+    <!-- :backgroundColor="sticker.backgroundColor" -->
+    <!-- :rotation="sticker.rotation" -->
     <div class="page__wrapper">
       <ProgressBar :progress="progress" />
-      <h1 class="title">
-        <span>{{ id }}. </span>{{ title }}
+      <h1 class="title title--step1">
+        <!-- <span>{{ id }}. </span>{{ title }} -->
+        title
       </h1>
-      <GoalDisplay
-        ref="goal"
-        :goal="goal"
-        @complete="onGoalComplete"
-        @active="onGoalActive"
-      />
+      <!-- <GoalDisplay ref="goal" :goal="goal" @active="onGoalActive" /> -->
       <div class="page__content">
         <div class="grid" v-if="showDemo">
           <div class="instructions">
             <p class="slide">
+              The first step in solving the cube is to arrange all the
+              <b>white edges</b> around the <b>yellow center</b>, forming a
+              shape that looks a little bit like a daisy.
+            </p>
+            <div class="slide">
               Start by holding your cube with the
               <b>yellow center facing up</b>. This is how you'll hold the cube
               for the entire solve.
-            </p>
+            </div>
             <p class="slide">
               One by one, find the <b>white edges</b> and move them up next to
               the yellow center. Ignore all the other pieces.
@@ -43,12 +47,13 @@
         </div>
       </div>
     </div>
-    <!-- <div class="page__footer">
+
+    <div class="page__footer">
       <div class="menu"></div>
       <a href="#step2">
         Skip this step
       </a>
-    </div> -->
+    </div>
   </section>
 </template>
 
@@ -68,50 +73,41 @@ export default {
   },
   data() {
     return {
-      id: 1,
-      title: "The Daisy",
-      stickerColor: "rgb(255, 191, 73)",
-      stickerRotation: "rotate(6deg)",
-      demoPuzzleState: "PRE_DAISY_1",
       timeline: null,
       showDemo: false,
-      progress: 0,
-      goal: {
-        id: 0,
-        description: "Arrange the 4 white edges around the yellow center",
-        backgroundColor: "#face70",
-        puzzleState: "DAISY"
-      }
+      progress: 0
     };
   },
-  computed: {
-    pageId: function() {
-      return "step" + this.id;
+
+  props: {
+    id: { value: Number, default: 0, required: false },
+    title: String,
+    demoPuzzleState: String,
+    sticker: {
+      backgroundColor: String,
+      left: String,
+      top: String,
+      rotation: String
+    },
+    goal: {
+      description: String,
+      backgroundColor: String,
+      puzzleState: String
     }
   },
+
+  computed: {},
 
   methods: {
     init: function() {
       this.createPageController();
-
-      this.timeline
-        .from(".slide", {
-          y: 100,
-          alpha: 0,
-          ease: "back.out",
-          stagger: {
-            each: 1,
-            delay: function(index) {
-              return 2 * index;
-            }
-          }
-        })
-        .set({}, {}, "+=1");
     }, // end init
+
     onGoalActive: function(value) {
       console.log("active: ", value);
       this.showDemo = !value;
     },
+
     onComplete: function(name) {
       switch (name) {
         case "goal":
@@ -132,7 +128,7 @@ export default {
       this.timeline = gsap.timeline({
         scrollTrigger: {
           trigger: page,
-          scrub: 1,
+          scrub: 0.2,
           pin: true,
           start: "top top",
           end: "bottom+=100%",
@@ -141,37 +137,41 @@ export default {
           }
         }
       });
-    },
-    onGoalComplete: function(e, v) {
-      console.log("completes: ", e, v);
-    },
-    onDemoComplete: function() {}
+    }
   },
   created() {},
   mounted() {
+    console.log(this.step);
     this.init();
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../css/variables";
+section {
+  // background: rgb(255, 191, 73);
+}
+
+h1 {
+  // background: darken(saturate(rgb(255, 191, 73), 20%), 10%);
+}
 .grid {
   display: grid;
   grid-gap: 2em;
   grid-template-columns: 1fr;
-  grid-template-areas: "instructions" "demo";
+  grid-template-areas: "demo" "instructions";
 
   @media screen and (orientation: landscape) and (min-width: 50em) {
-    .instructions {
-      width: 100%;
-    }
     grid-template-columns: 2fr 3fr;
     grid-template-areas: "instructions instructions demo demo demo";
   }
   @media screen and (min-width: 60em) {
-    grid-template-columns: 22em 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas: "instructions demo";
+  }
+  @media screen and (min-width: 90em) {
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas: "instructions demo demo";
   }
   .demo {
     grid-area: demo;
@@ -179,13 +179,12 @@ export default {
   .instructions {
     grid-area: instructions;
     grid-template-columns: 1fr;
-    // border: 1px solid tomato;
-    .slide {
-      max-width: 22em;
-    }
   }
 }
-
+a {
+  text-decoration: none;
+  background-color: 5px solid rgb(8, 202, 66);
+}
 .page__footer {
   position: fixed;
   bottom: 0;
@@ -208,13 +207,6 @@ export default {
     letter-spacing: 0.05em;
     color: black;
     background-color: none;
-  }
-}
-</style>
-<style lang="scss">
-#step1 {
-  .accent-bg {
-    background-color: tomato;
   }
 }
 </style>

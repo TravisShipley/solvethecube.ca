@@ -10,22 +10,15 @@
           <span class="easy-steps nowrap">8 easy steps.</span>
         </h2>
       </div>
-      <!-- <ScrollPrompt /> -->
     </div>
   </section>
 </template>
 
 <script>
-import ScrollPrompt from "./ScrollPrompt";
 export default {
-  name: "HeroPage",
-
-  components: {
-    // ScrollPrompt
-  }
+  name: "HeroPage"
 };
 </script>
-
 <style lang="scss" scoped>
 .title--hero {
   position: absolute;
@@ -48,7 +41,7 @@ export default {
 
 .tagline {
   position: absolute;
-  bottom: 5rem;
+  bottom: 16vh;
   left: 2rem;
   margin-top: 1em;
   text-align: left;
@@ -56,10 +49,11 @@ export default {
   width: calc(100vw - 4rem);
   max-width: 13em;
   color: #221112;
+  text-shadow: 0 0 32px #ebe0d9;
   span {
-    background: rgba(241, 237, 232, 0.356);
-    background: rgba(255, 225, 197, 0.568);
-    background: #f6f5ef79;
+    // background: rgba(241, 237, 232, 0.356);
+    // background: rgba(255, 225, 197, 0.568);
+    // background: #f6f5ef79;
   }
 
   .easy-steps {
@@ -68,6 +62,7 @@ export default {
     border-radius: 3px;
     color: white;
     padding: 0 0.5em 0.15em 0.5em;
+    text-shadow: none;
   }
   .nowrap {
     white-space: nowrap;
@@ -77,6 +72,6 @@ export default {
 section {
   // width: 100vw;
   // height: 100vh;
-  background-image: linear-gradient(30deg, #f6f5ef, #ebe0d9);
+  background-image: linear-gradient(170deg, #ebe0d9, transparent 70%);
 }
 </style>

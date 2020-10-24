@@ -1,3 +1,4 @@
+
 *,
 *:after,
 *:before {
@@ -23,6 +24,19 @@ body {
   color: #222222;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ebe0d9;
+}
+a {
+  color: #121212;
+  font-weight: bolder;
+  text-decoration: underline;
+  // background-image: linear-gradient(180deg, transparent 60%, rgba(241, 239, 226, 0.459) 60%);
+  transition: all 200ms ease-in-out;
+}
+a:hover,
+a:focus,
+a:active {
+  // background-image: linear-gradient(180deg, transparent 0%, white 60%)
 }
 section {
   scroll-snap-align: start;
@@ -82,8 +96,12 @@ h6 {
   margin: 1.2em 0 1em 0;
 }
 
+p + p {
+  margin-top: 2em;
+}
+
 section {
-  max-width: 1440px;
+  // margin-bottom: 10vh;
 }
 button {
   border: none;
@@ -96,13 +114,26 @@ button {
   color: #ffffff;
   margin: 0;
   padding: 0.5rem 1rem;
-  background: #3a04041a;
 }
 .nowrap {
   white-space: nowrap;
 }
 .bold {
   font-weight: bold;
+}
+
+.page__content,
+.progress,
+.title,
+.tagline {
+  @media screen and (min-width: 90em) {
+    margin-left: 3rem;
+    margin-right: 3rem;
+  }
+  @media screen and (min-width: 50em) {
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
 }
 
 @import "margin_helpers";

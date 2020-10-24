@@ -1,5 +1,5 @@
 <template>
-  <section class="page step">
+  <section id="step2" ref="page" class="page step">
     <div class="page__wrapper">
       <ProgressBar />
       <h1 class="title title--step2"><span>2. </span>The White Cross</h1>

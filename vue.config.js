@@ -1,8 +1,3 @@
 module.exports = {
-  lintOnSave: false,
-  configureWebpack: {
-    externals: {
-      gsap: "gsap"
-    }
-  }
+  lintOnSave: false
 };

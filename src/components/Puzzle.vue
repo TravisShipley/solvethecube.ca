@@ -51,7 +51,6 @@ var Puzzle = {
       console.log("\n\nPuzzle Init ====================================\n");
 
       this.container = this.$refs.container;
-      console.log(this.container.width);
       this.canvas = document.getElementById("canvas");
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(20, 1);
@@ -88,6 +87,7 @@ var Puzzle = {
       for (let light of this.lights) {
         this.scene.add(light);
       }
+
       console.log("puzzle state:", this.state);
       this.setState();
 
@@ -124,13 +124,18 @@ var Puzzle = {
         ease: "power3.out"
       });
     },
-
-    spinY: function() {
+    spinX: function() {
       return gsap.to(this.cube.rotation, {
         duration: 1,
-        y: () => {
+        x: () => {
           return this.cube.rotation.y + 3;
         }
+      });
+    },
+    spinY: function(rotation = 3) {
+      return gsap.to(this.cube.rotation, {
+        duration: 1,
+        y: () => this.cube.rotation.y + rotation
       });
     },
 
@@ -241,11 +246,6 @@ var Puzzle = {
       var newZ = this.cube.rotation.z % pi2;
 
       this.cube.rotation.set(newX, newY, newZ);
-      console.log(
-        `Unspin:
-        Cube rotation set to
-        ${this.cube.rotation.x}, ${this.cube.rotation.y}, ${this.cube.rotation.z}`
-      );
     },
 
     resizeCanvasToDisplaySize: function() {
@@ -277,7 +277,7 @@ var Puzzle = {
       //Init
       this.resizeCanvasToDisplaySize();
     });
-
+    gsap.defaults({ ease: "none" });
     this.init();
   },
 

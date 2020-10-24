@@ -32,8 +32,6 @@ export default {
 <style lang="scss" scoped>
 .progress {
   overflow: hidden;
-  // padding-top: 0.5rem;
-  // margin: 1em;
   padding: 0.5rem 1rem;
 }
 .line {

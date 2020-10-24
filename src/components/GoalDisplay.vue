@@ -55,43 +55,39 @@ export default {
       var spin = this.$refs.puzzle.spinAnimation();
 
       // animate the "goal puzzle" onto the screen
-      var entrance = gsap.timeline({
+      gsap.defaults({ ease: "none" });
+
+      this.timeline = gsap.timeline({
+        // onComplete: this.isComplete,
+        autoRemoveChildren: true,
+        onComplete: () => (this.isActive = false),
         scrollTrigger: {
           trigger: this.$refs.goal,
           start: "top center",
           end: "top center",
-          // markers: true,
           once: true
         },
         onStart: this.isStarted
       });
 
-      entrance
+      this.timeline
+        .add(spin, 0)
         .from(
           this.$refs.goal,
           {
-            duration: 0.3,
-            opacity: 0
+            duration: 0.5,
+            opacity: 0,
+            ease: "power3.in"
           },
           0
         )
         .from(
           this.$refs.description,
           {
-            duration: 0.5,
+            duration: 1,
             opacity: 0,
-            y: "-=2em",
-            onComplete: this.isReady
-          },
-          1
-        )
-
-        .from(
-          this.$refs.container,
-          {
-            duration: 3,
-            scale: 0.1,
-            ease: "elastic.out"
+            y: "+=6em",
+            ease: "power3.out"
           },
           0
         )
@@ -104,31 +100,16 @@ export default {
           },
           0
         )
-        .add(spin, 0);
-    },
-
-    isStarted: function() {
-      this.$emit("start");
-    },
-
-    isReady: function() {
-      this.$emit("ready");
-      // this.$refs.puzzle.spinContinuously();
-    },
-
-    minimize: function() {
-      // this.entrance.progress = 1;
-
-      var tl = gsap.timeline({
-        autoRemoveChildren: true,
-        onStart: () => this.$emit("minimized")
-      });
-
-      tl.to(this.$refs.description, {
-        duration: 0.2,
-        opacity: 0,
-        onComplete: this.toggleDescription
-      })
+        .to(
+          this.$refs.goal,
+          { duration: 3, y: "-=5em", ease: "power1.inOut" },
+          0
+        )
+        .to(this.$refs.description, {
+          duration: 0.2,
+          opacity: 0,
+          onComplete: this.toggleDescription
+        })
         .to(this.$refs.bg, {
           duration: 0.5,
           scale: 0.5,
@@ -144,13 +125,22 @@ export default {
             y: 0,
             x: 0,
             right: "1em",
-            width: "6em",
-            onComplete: this.isComplete
+            width: "5em"
           },
           "<"
         );
+    },
 
-      // return tl;
+    isStarted: function() {
+      this.$emit("start");
+    },
+
+    isReady: function() {
+      this.$emit("ready");
+    },
+
+    minimize: function() {
+      // be more functional?
     },
 
     isComplete: function() {
@@ -170,19 +160,7 @@ export default {
       return this.timeline;
     },
 
-    createTimeline: function() {
-      this.timeline = gsap.timeline({
-        onComplete: this.minimize,
-        autoRemoveChildren: true
-      });
-      this.timeline
-        .add(this.$refs.puzzle.spinY())
-        .to(
-          this.$refs.goal,
-          { duration: 1, y: "-=5em", ease: "power3.inOut" },
-          0
-        );
-    }
+    createTimeline: function() {}
   },
 
   created() {
@@ -199,7 +177,7 @@ export default {
 <style lang="scss">
 .goal {
   position: absolute;
-  width: 25em;
+  width: 20em;
   top: 20%;
   right: 50%;
   transform: translateX(50%);

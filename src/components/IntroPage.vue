@@ -1,9 +1,11 @@
 <template>
   <section ref="page" class="page page--intro-page">
+    <PageSticker :background-color="stickerColor" />
     <div class="page__wrapper">
       <ProgressBar :progress="progress" />
 
       <h1 class="title title--intro">But first...</h1>
+      <!-- <font-awesome-icon icon="bars" size="lg" /> -->
       <div class="page__content">
         <div class="slide">
           <h2>
@@ -20,7 +22,7 @@
           <p class="piece-description piece-description--center">
             The 6 center pieces are attached to the core of the cube. They can
             rotate but they never swap around. This means that
-            <span>the yellow face is always opposite the white face.</span>
+            <b>the yellow face is always opposite the white face.</b>
           </p>
         </div>
 
@@ -54,25 +56,36 @@
 </template>
 
 <script>
+import PageSticker from "./PageSticker";
 import ProgressBar from "./ProgressBar";
 import HighlightedText from "./HighlightedText";
 import Puzzle from "./Puzzle";
 
-var IntroPage = {
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+library.add(faBars);
+
+export default {
   name: "IntroPage",
   components: {
+    PageSticker,
     HighlightedText,
     ProgressBar,
-    Puzzle
+    Puzzle,
+    FontAwesomeIcon
   },
   data() {
     return {
-      cornerDescription: "",
+      id: 0,
+      title: "But first...",
+      puzzleState: "SOLVED",
+      stickerColor: "#5cbae6",
       progress: 0,
       timeline: null,
       heroTimeline: null,
-      scrollTriggers: null,
-      puzzleState: "SOLVED"
+      screenHeight: null
     };
   },
   methods: {
@@ -94,15 +107,15 @@ var IntroPage = {
           endTrigger: page,
           start: "top+=10px top",
           end: "bottom+=100%",
-          scrub: 0.5,
+          scrub: true,
 
-          // markers: {
-          //   startColor: "darkgreen",
-          //   endColor: "purple",
-          //   fontSize: "18px",
-          //   fontWeight: "bold",
-          //   indent: 20
-          // },
+          markers: {
+            startColor: "darkgreen",
+            endColor: "purple",
+            fontSize: "18px",
+            fontWeight: "bold",
+            indent: 20
+          },
 
           onLeave: () => {
             console.log("LEAVE");
@@ -121,14 +134,15 @@ var IntroPage = {
           }
         }
       });
+      gsap.set(cube.$el, { y: 0 });
 
       this.heroTimeline
         .to(
-          ".hero-puzzle",
+          cube.$el,
           {
             duration: 1,
             // x: "10",
-            y: "+=100vh",
+            y: this.screenHeight,
             scale: 0.85,
             ease: "back.inOut"
           },
@@ -171,6 +185,7 @@ var IntroPage = {
         .from(".slide", {
           y: 100,
           alpha: 0,
+          ease: "back.out",
           stagger: {
             each: 1,
             delay: function(index) {
@@ -178,28 +193,22 @@ var IntroPage = {
             }
           }
         })
-        .set({}, {}, "+=3");
+        .set({}, {}, "+=1");
     }
   },
   mounted: function() {
+    this.screenHeight = window.innerHeight;
+
     this.init();
   }
 };
-
-export default IntroPage;
 </script>
 
 <style lang="scss" scoped>
-section {
-  background: rgb(92, 186, 230);
+$puzzle-size: 90vmin;
+.page {
+  border: 10 px solid steelblue;
 }
-
-h1 {
-  background: darken(rgb(92, 186, 230), 10%);
-}
-
-$puzzle-size: 100vmin;
-
 .hero-puzzle {
   position: absolute;
   width: $puzzle-size;
@@ -207,18 +216,28 @@ $puzzle-size: 100vmin;
   transform-origin: center center;
 
   top: -90vh;
-  left: 0;
+  left: auto;
+  right: 0;
+  // border: 1px solid gold;
 
-  @media screen and (min-width: 50em) {
-    width: 80vmin;
-    height: 80vmin;
-    right: 0;
-    left: auto;
-  }
-  @media screen and (min-width: 90em) {
-    right: auto;
-    left: 35em;
-    transform: scale(1.2);
-  }
+  // @media screen and (min-width: 25em) {
+  //   top: -60vh;
+  //   transform: scale(0.8);
+  // }
+  // @media screen and (min-width: 50em) {
+  //   width: 80vmin;
+  //   height: 80vmin;
+  //   top: -90vh;
+  //   right: auto;
+  //   left: 50%;
+  // }
+  // @media screen and (min-width: 90em) {
+  //   right: auto;
+  //   transform: scale(1.2);
+  // }
+}
+
+.slide {
+  width: 20em;
 }
 </style>

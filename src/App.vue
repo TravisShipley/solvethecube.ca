@@ -2,13 +2,12 @@
   <div id="app">
     <HeroPage ref="heroPage" />
     <IntroPage ref="introPage" />
-    <!-- <div class="hero-puzzle"> -->
-    <!-- <Puzzle ref="heroPuzzle" :state="puzzleState" /> -->
-    <!-- </div> -->
+    <div class="gap"></div>
     <Step1 />
+    <div class="gap"></div>
     <Step2 />
+    <div class="gap"></div>
     <Step3 />
-    <!-- <Puzzle ref="otherPuzzle" /> -->
   </div>
 </template>
 
@@ -16,7 +15,6 @@
 // import gsap from "gsap";
 
 import HeroPage from "./components/HeroPage";
-// import Puzzle from "./components/Puzzle";
 import IntroPage from "./components/IntroPage";
 import Step1 from "./components/Step1";
 import Step2 from "./components/Step2";
@@ -27,7 +25,6 @@ export default {
   components: {
     HeroPage,
     IntroPage,
-    // Puzzle,
     Step1,
     Step2,
     Step3
@@ -48,4 +45,9 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.gap {
+  height: 20vh;
+  width: 100vw;
+}
+</style>
