@@ -10,7 +10,7 @@
     // small but larger than mobile. 400px+
   }
   &__wrapper {
-    margin: 1rem;
+    margin: 0 1rem;
       @media screen and (min-width: $bp-sm) {
 
         
@@ -18,11 +18,11 @@
   
       // medium screen 960px+
       @media screen and (min-width: $bp-md) {
-        margin: 1rem 2rem;
+        margin: 0 2rem;
       }
       // large screen
       @media screen and (min-width: $bp-lg) {
-        margin: 1rem 3rem 0 10rem;
+        margin: 0 6rem 0 12rem;
       }
       
       @media screen and (min-width: 50em) and (orientation:landscape ){

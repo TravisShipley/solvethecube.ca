@@ -179,6 +179,7 @@ export default {
     background-color: none;
   }
 }
+
 #step1 {
   .accent-bg {
     background-color: tomato;

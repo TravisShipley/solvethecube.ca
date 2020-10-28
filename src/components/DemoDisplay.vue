@@ -232,22 +232,19 @@ export default {
 
 <style lang="scss" scoped>
 .demo {
-  margin: 0 auto;
+  margin: 1em auto;
   max-width: 40em;
   min-width: 80%;
   text-align: center;
 
   backdrop-filter: blur(16px);
-  background: rgba(245, 238, 233, 0.88);
   background: rgba(247, 243, 241, 0.8);
   border-radius: 24px;
   box-shadow: 8px 32px 32px -12px #3e0f0f33;
 
-  // @media screen and
-
   &__puzzle {
     position: relative;
-    max-width: 25em;
+    max-width: 22em;
     width: 90vmin;
     padding: 1em;
     margin: auto;
@@ -360,8 +357,6 @@ $scrubber_size: 2em;
   // text-align: center;
   height: 4em;
 
-  .tab.active {
-  }
   .tab {
     max-width: 25%;
     background: white;

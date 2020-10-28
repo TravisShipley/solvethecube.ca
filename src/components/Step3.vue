@@ -51,6 +51,11 @@
             </li>
           </ul>
         </div>
+        <DemoDisplay
+          ref="demoDisplay"
+          :state="demoPuzzleState"
+          :progress="progress"
+        />
       </div>
     </div>
   </section>

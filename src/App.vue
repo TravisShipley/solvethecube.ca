@@ -10,6 +10,7 @@
     <NotationPage />
     <div class="gap"></div>
     <Step3 />
+    <NavigationMenu />
   </div>
 </template>
 
@@ -21,6 +22,7 @@ import IntroPage from "./components/IntroPage";
 import Step1 from "./components/Step1";
 import Step2 from "./components/Step2";
 import NotationPage from "./components/NotationPage";
+import NavigationMenu from "./components/NavigationMenu";
 import Step3 from "./components/Step3";
 
 export default {
@@ -31,6 +33,7 @@ export default {
     Step1,
     Step2,
     NotationPage,
+    NavigationMenu,
     Step3
   },
   data() {
