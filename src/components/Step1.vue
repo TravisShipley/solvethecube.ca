@@ -2,7 +2,7 @@
   <section :id="pageId" ref="page" class="page">
     <PageSticker :backgroundColor="stickerColor" :transform="stickerRotation" />
     <div class="page__wrapper">
-      <ProgressBar :progress="progress" />
+      <!-- <ProgressBar :progress="progress" /> -->
       <h1 class="title">
         <span>{{ id }}. </span>{{ title }}
       </h1>
@@ -12,35 +12,33 @@
         @complete="onGoalComplete"
         @active="onGoalActive"
       />
-      <div class="page__content">
-        <div class="grid" v-if="showDemo">
-          <div class="instructions">
-            <p class="slide">
-              Start by holding your cube with the
-              <b>yellow center facing up</b>. This is how you'll hold the cube
-              for the entire solve.
-            </p>
-            <p class="slide">
-              One by one, find the <b>white edges</b> and move them up next to
-              the yellow center. Ignore all the other pieces.
-            </p>
-            <p class="slide">
-              If you have trouble, play this demo a few times to see how it's
-              done.
-            </p>
-            <p class="slide">
-              After you've made <b>the daisy</b>, move on to
-              <a href="#step2">Step 2</a>.
-            </p>
-          </div>
-          <DemoDisplay
-            ref="demoDisplay"
-            @complete="onDemoComplete"
-            v-if="showDemo"
-            :state="demoPuzzleState"
-            :progress="progress"
-          />
+      <div class="page__content grid" v-if="showDemo">
+        <div class="instructions">
+          <p class="slide">
+            Start by holding your cube with the
+            <b>yellow center facing up</b>. This is how you'll hold the cube for
+            the entire solve.
+          </p>
+          <p class="slide">
+            One by one, find the <b>white edges</b> and move them up next to the
+            yellow center. Ignore all the other pieces.
+          </p>
+          <p class="slide">
+            If you have trouble, play this demo a few times to see how it's
+            done.
+          </p>
+          <p class="slide">
+            After you've made <b>the daisy</b>, move on to
+            <a href="#step2">Step 2</a>.
+          </p>
         </div>
+        <DemoDisplay
+          ref="demoDisplay"
+          @complete="onDemoComplete"
+          v-if="showDemo"
+          :state="demoPuzzleState"
+          :progress="progress"
+        />
       </div>
     </div>
     <!-- <div class="page__footer">
@@ -92,10 +90,10 @@ export default {
 
   methods: {
     init: function() {
-      this.createPageController();
-
+      // this.createPageController();
+      this.timeline = gsap.timeline();
       this.timeline
-        .from(".slide", {
+        .from("#step1 .slide", {
           y: 100,
           alpha: 0,
           ease: "back.out",
@@ -156,35 +154,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "../css/variables";
-.grid {
-  display: grid;
-  grid-gap: 2em;
-  grid-template-columns: 1fr;
-  grid-template-areas: "instructions" "demo";
-
-  @media screen and (orientation: landscape) and (min-width: 50em) {
-    .instructions {
-      width: 100%;
-    }
-    grid-template-columns: 2fr 3fr;
-    grid-template-areas: "instructions instructions demo demo demo";
-  }
-  @media screen and (min-width: 60em) {
-    grid-template-columns: 22em 1fr;
-    grid-template-areas: "instructions demo";
-  }
-  .demo {
-    grid-area: demo;
-  }
-  .instructions {
-    grid-area: instructions;
-    grid-template-columns: 1fr;
-    // border: 1px solid tomato;
-    .slide {
-      max-width: 22em;
-    }
-  }
-}
 
 .page__footer {
   position: fixed;
@@ -210,8 +179,6 @@ export default {
     background-color: none;
   }
 }
-</style>
-<style lang="scss">
 #step1 {
   .accent-bg {
     background-color: tomato;

@@ -30,10 +30,12 @@ export default {
   text-align: left;
   font-weight: 900;
   line-height: 0.8;
-  background: none;
   z-index: 100;
-  mix-blend-mode: overlay;
-  text-shadow: 0 0.33rem 1rem rgba(25, 41, 64, 1);
+  mix-blend-mode: screen;
+  text-shadow: 0.3rem 0.3rem 0 rgba(255, 235, 60, 0.8),
+    0.3rem -0.3rem 0 rgba(60, 141, 255, 0.8),
+    -0.3rem -0.3rem 0 rgba(255, 60, 102, 0.8),
+    0 0.33rem 1rem rgba(25, 41, 64, 0.25);
   @media screen and (min-width: 50em) {
     font-size: 20vmin;
   }
@@ -70,8 +72,16 @@ export default {
 }
 
 section {
-  // width: 100vw;
-  // height: 100vh;
   background-image: linear-gradient(170deg, #ebe0d9, transparent 70%);
+}
+</style>
+
+<style lang="scss">
+.page {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  height: 100vh;
+  max-width: 1920px;
 }
 </style>

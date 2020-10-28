@@ -23,6 +23,17 @@
   bottom: 0;
 }
 
+// float positioning
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.fn {
+  float: none;
+}
+
 // z-index helpers
 .z-0		{ z-index: 0; }
 .z-1		{ z-index: 1; }

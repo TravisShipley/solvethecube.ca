@@ -1,0 +1,29 @@
+.grid {
+  display: grid;
+  grid-gap: 2em;
+  grid-template-columns: 1fr;
+  grid-template-areas: "instructions" "demo";
+
+  @media screen and (orientation: landscape) and (min-width: 50em) {
+    .instructions {
+      width: 100%;
+    }
+    grid-template-columns: 2fr 3fr;
+    grid-template-areas: "instructions instructions demo demo demo";
+  }
+  @media screen and (min-width: 60em) {
+    grid-template-columns: 22em 1fr;
+    grid-template-areas: "instructions demo";
+  }
+  .demo {
+    grid-area: demo;
+  }
+  .instructions {
+    grid-area: instructions;
+    grid-template-columns: 1fr;
+    // border: 1px solid tomato;
+    .slide {
+      max-width: 22em;
+    }
+  }
+}

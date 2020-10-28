@@ -1,18 +1,15 @@
 <template>
-  <section ref="page" class="page page--intro-page">
+  <section id="intro" ref="page" class="page page--intro-page">
     <PageSticker :background-color="stickerColor" />
     <div class="page__wrapper">
-      <ProgressBar :progress="progress" />
-
       <h1 class="title title--intro">But first...</h1>
-      <!-- <font-awesome-icon icon="bars" size="lg" /> -->
+      <ProgressBar :progress="progress" />
       <div class="page__content">
         <div class="slide">
           <h2>
             Let's learn a bit about how the cube works.
           </h2>
         </div>
-
         <div class="slide">
           <h3>
             <HighlightedText>
@@ -181,8 +178,19 @@ export default {
         }
       });
 
-      this.timeline
-        .from(".slide", {
+      var slideTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: page,
+          scrub: true,
+          pin: true,
+          end: "bottom+=100%",
+          once: true
+        }
+      });
+
+      // use a separate timeline to add a "once" flag to the slides
+      slideTimeline
+        .from("#intro .slide", {
           y: 100,
           alpha: 0,
           ease: "back.out",

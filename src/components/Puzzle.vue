@@ -292,8 +292,6 @@ export default Puzzle;
 <style lang="scss">
 .puzzle-container {
   width: 100%;
-  height: 100%;
-  // max-width: 90vmin;
   transform-origin: center right;
 
   canvas {

@@ -1,5 +1,19 @@
 <template>
   <div ref="demo" class="demo">
+    <div class="tabs">
+      <div class="tab">
+        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
+      </div>
+      <div class="tab active">
+        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
+      </div>
+      <!-- <div class="tab">
+        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
+      </div>
+      <div class="tab">
+        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
+      </div> -->
+    </div>
     <div class="demo__puzzle">
       <Puzzle ref="puzzle" :state="puzzleState" />
     </div>
@@ -264,30 +278,6 @@ export default {
     text-align: center;
   }
 
-  .alg {
-    position: relative;
-    display: inline-block;
-    padding: 0.2em 0.4em;
-    border-radius: 0.25em;
-    background: rgba(12, 12, 12, 0.1);
-    font-weight: bold;
-
-    span:not(:last-child) {
-      margin-right: 0.2em;
-    }
-    .name {
-      font-size: 0.6em;
-      padding: 0 0.6em;
-      position: absolute;
-      top: -1.2em;
-      left: 0;
-      display: inline-block;
-      color: rgba(18, 18, 18, 0.5);
-    }
-    &.fish {
-      background: rgba(240, 128, 128, 0.5);
-    }
-  }
   .adj {
     margin: 0.25em 0.5em;
     display: inline-block;
@@ -361,6 +351,38 @@ $scrubber_size: 2em;
       transition-timing-function: ease-in-out;
       outline: none;
       opacity: 1;
+    }
+  }
+}
+.tabs {
+  display: flex;
+  justify-content: center;
+  // text-align: center;
+  height: 4em;
+
+  .tab.active {
+  }
+  .tab {
+    max-width: 25%;
+    background: white;
+    border-radius: 8px;
+    // border: 1px solid;
+    margin: 0.5em 0.25em;
+    padding: 0.25em;
+    height: 100%;
+    width: 100%;
+    transition: all 200ms;
+    img {
+      max-height: 100%;
+      transition: all 200ms;
+    }
+    &:not(.active):not(:hover) {
+      cursor: pointer;
+      background: transparent;
+      img {
+        opacity: 0.7;
+        transform: scale(0.8);
+      }
     }
   }
 }

@@ -32,7 +32,7 @@ export default {
 <style lang="scss" scoped>
 .progress {
   overflow: hidden;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0;
 }
 .line {
   background: #fff;

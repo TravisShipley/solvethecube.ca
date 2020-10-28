@@ -7,6 +7,8 @@
     <div class="gap"></div>
     <Step2 />
     <div class="gap"></div>
+    <NotationPage />
+    <div class="gap"></div>
     <Step3 />
   </div>
 </template>
@@ -18,6 +20,7 @@ import HeroPage from "./components/HeroPage";
 import IntroPage from "./components/IntroPage";
 import Step1 from "./components/Step1";
 import Step2 from "./components/Step2";
+import NotationPage from "./components/NotationPage";
 import Step3 from "./components/Step3";
 
 export default {
@@ -27,6 +30,7 @@ export default {
     IntroPage,
     Step1,
     Step2,
+    NotationPage,
     Step3
   },
   data() {
