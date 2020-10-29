@@ -2,16 +2,11 @@
   <section :id="pageId" ref="page" class="page">
     <PageSticker :backgroundColor="stickerColor" :transform="stickerRotation" />
     <div class="page__wrapper">
-      <!-- <ProgressBar :progress="progress" /> -->
       <h1 class="title">
         <span>{{ id }}. </span>{{ title }}
       </h1>
-      <GoalDisplay
-        ref="goal"
-        :goal="goal"
-        @complete="onGoalComplete"
-        @active="onGoalActive"
-      />
+      <ProgressBar :progress="progress" />
+      <GoalDisplay ref="goal" :goal="goal" @active="onGoalActive" />
       <div class="page__content grid" v-if="showDemo">
         <div class="instructions">
           <p class="slide">
@@ -37,7 +32,6 @@
           @complete="onDemoComplete"
           v-if="showDemo"
           :state="demoPuzzleState"
-          :progress="progress"
         />
       </div>
     </div>
@@ -90,58 +84,26 @@ export default {
 
   methods: {
     init: function() {
-      // this.createPageController();
-      this.timeline = gsap.timeline();
-      this.timeline
-        .from("#step1 .slide", {
-          y: 100,
-          alpha: 0,
-          ease: "back.out",
-          stagger: {
-            each: 1,
-            delay: function(index) {
-              return 2 * index;
-            }
-          }
-        })
-        .set({}, {}, "+=1");
+      this.createProgressController();
     }, // end init
     onGoalActive: function(value) {
-      console.log("active: ", value);
       this.showDemo = !value;
     },
-    onComplete: function(name) {
-      switch (name) {
-        case "goal":
-          // this.showDemo = true;
-          this.createPageController();
-          break;
-        case "demo":
-          console.log("complete:", name);
-          break;
-        default:
-          console.warn("Uncaught event in Step1 from", name);
-          break;
-      }
-    },
-    createPageController: function() {
+    createProgressController: function() {
       const page = this.$refs.page;
 
       this.timeline = gsap.timeline({
         scrollTrigger: {
           trigger: page,
-          scrub: 1,
+          scrub: true,
           pin: true,
-          start: "top top",
-          end: "bottom+=100%",
+          // start: "top top",
+          // end: "bottom+=100%",
           onUpdate: self => {
             this.progress = self.progress;
           }
         }
       });
-    },
-    onGoalComplete: function(e, v) {
-      console.log("completes: ", e, v);
     },
     onDemoComplete: function() {}
   },

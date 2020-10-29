@@ -1,16 +1,21 @@
 <template>
-  <section class="page step">
+  <section ref="page" class="page step">
     <PageSticker :backgroundColor="stickerColor" :transform="stickerRotation" />
     <div class="page__wrapper">
-      <ProgressBar />
       <h1 class="title">
         <span>{{ id }}. </span>{{ title }}
       </h1>
+      <ProgressBar ref="bar" :progress="progress" />
       <!-- <GoalDisplay ref="goal" :goal="goal" /> -->
 
       <div class="page__content grid">
         <div class="instructions">
-          <h2>Our first two algorithms</h2>
+          <span class="h3 slide bold">Our first two algorithms</span>
+
+          <div class="slide">
+            To correctly place the white corners in the first layer we're going
+            to learn to use our first two algorithms.
+          </div>
           <h3 class="algs slide">
             <div class="alg">
               <div class="name">Right Trigger</div>
@@ -22,39 +27,16 @@
               <span>L'</span><span>U'</span><span>L</span><span>U</span>
             </div>
           </h3>
-
-          <div class="slide">
-            To correctly place the white corners in the first layer we're going
-            to learn to use our first two algorithms.
-          </div>
           <p class="slide">
             An <b>algorithm</b> is simply a series moves that we can do in
             sequence to achieve a result that we want, and these two simple
             sequences are all we'll need to solve the first layer.
           </p>
-          <p>
-            You will find that the scrambled white corners are in one of three
-            configurations:
-          </p>
-          <ul>
-            <li>
-              In the top layer, white on top.
-            </li>
-            <li>
-              In the top layer, white on the side.
-            </li>
-            <li>
-              In the bottom layer, white on bottom.
-            </li>
-            <li>
-              In the bottom layer, white on the side.
-            </li>
-          </ul>
         </div>
         <DemoDisplay
           ref="demoDisplay"
           :state="demoPuzzleState"
-          :progress="progress"
+          :images="demoImages"
         />
       </div>
     </div>
@@ -64,12 +46,14 @@
 <script>
 import ProgressBar from "./ProgressBar";
 import PageSticker from "./PageSticker";
+import DemoDisplay from "./DemoDisplay";
 
 export default {
   name: "Step2",
   components: {
     ProgressBar,
-    PageSticker
+    PageSticker,
+    DemoDisplay
   },
   data() {
     return {
@@ -80,6 +64,11 @@ export default {
       demoPuzzleState: "SOLVED",
       timeline: null,
       showDemo: false,
+      demoImages: [
+        "../assets/first-layer-1.png",
+        "../assets/first-layer-2.png",
+        "../assets/first-layer-3.png"
+      ],
       progress: 0,
       goal: {
         id: 0,
@@ -88,6 +77,9 @@ export default {
         puzzleState: "FIRSTLAYER"
       }
     };
+  },
+  mounted: function() {
+    this.timeline = this.$refs.bar.createTimeline(this);
   }
 };
 </script>

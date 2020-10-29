@@ -70,8 +70,7 @@ export default {
     PageSticker,
     HighlightedText,
     ProgressBar,
-    Puzzle,
-    FontAwesomeIcon
+    Puzzle
   },
   data() {
     return {
@@ -82,12 +81,12 @@ export default {
       progress: 0,
       timeline: null,
       heroTimeline: null,
-      screenHeight: null
+      screenHeight: null,
+      isFixed: false
     };
   },
   methods: {
     init() {
-      console.log("introPage innit?");
       const cube = this.$refs.heroPuzzle;
       const page = this.$refs.page;
 
@@ -106,27 +105,21 @@ export default {
           end: "bottom+=100%",
           scrub: true,
 
-          markers: {
-            startColor: "darkgreen",
-            endColor: "purple",
-            fontSize: "18px",
-            fontWeight: "bold",
-            indent: 20
-          },
-
-          onLeave: () => {
-            console.log("LEAVE");
-          },
+          // markers: {
+          //   startColor: "darkgreen",
+          //   endColor: "purple",
+          //   fontSize: "18px",
+          //   fontWeight: "bold",
+          //   indent: 20
+          // },
 
           onEnter: () => {
-            console.log("STARTING");
             spinning.kill();
             cube.unspin();
             this.heroTimeline.invalidate();
           },
 
           onLeaveBack: () => {
-            console.log("LEAVEBACK");
             spinning = cube.spinContinuously();
           }
         }
@@ -148,19 +141,13 @@ export default {
         .add(cube.changeColor(0xee0231), 0)
         .add(cube.spinTo(0.5, 2.5, 0), 0) // white face up
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
-        .add(function() {
-          console.log("\nCenters\n\n");
-        })
+
         .add(cube.showOnlyCenters())
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
-        .add(function() {
-          console.log("\nEdges\n\n");
-        })
+
         .add(cube.showOnlyEdges())
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
-        .add(function() {
-          console.log("\nCorners\n\n");
-        })
+
         .add(cube.showOnlyCorners())
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<");
 
@@ -191,7 +178,7 @@ export default {
       // use a separate timeline to add a "once" flag to the slides
       slideTimeline
         .from("#intro .slide", {
-          y: 100,
+          y: 60,
           alpha: 0,
           ease: "back.out",
           stagger: {
@@ -206,7 +193,6 @@ export default {
   },
   mounted: function() {
     this.screenHeight = window.innerHeight;
-
     this.init();
   }
 };

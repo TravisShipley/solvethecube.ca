@@ -1,15 +1,24 @@
 <template>
   <div class="progress">
-    <div class="line" :style="{ transform }"></div>
+    <div class="line" :style="{ transform, backgroundColor }"></div>
   </div>
 </template>
 
 <script>
 export default {
   name: "ProgressBar",
-
+  data() {
+    return {
+      timeline: null,
+      internalProgress: null
+    };
+  },
   props: {
-    progress: Number
+    progress: { value: Number, default: 100 },
+    backgroundColor: {
+      value: String,
+      default: "#ffffff"
+    }
   },
 
   computed: {
@@ -18,8 +27,21 @@ export default {
     }
   },
   methods: {
-    init() {
-      console.log("ProgressBar init");
+    init() {},
+    createTimeline(page) {
+      console.log(page);
+      return gsap.timeline({
+        scrollTrigger: {
+          trigger: page.$el,
+          scrub: true,
+          pin: true,
+          // start: "top top",
+          // end: "bottom+=100%",
+          onUpdate: self => {
+            page.progress = self.progress;
+          }
+        }
+      });
     }
   },
   mounted() {

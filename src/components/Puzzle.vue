@@ -88,7 +88,7 @@ var Puzzle = {
         this.scene.add(light);
       }
 
-      console.log("puzzle state:", this.state);
+      // console.log("puzzle state:", this.state);
       this.setState();
 
       this.render();
@@ -109,15 +109,15 @@ var Puzzle = {
       return gsap.to(this.cube.rotation, {
         duration: 3,
         x: (i, t) => {
-          console.log(t.x);
+          // console.log(t.x);
           return "+=3";
         },
         y: (i, t) => {
-          console.log(t.y);
+          // console.log(t.y);
           return "+=8";
         },
         z: (i, t) => {
-          console.log(t.z);
+          // console.log(t.z);
           return "+=2";
         },
         repeatRefresh: true,
@@ -151,7 +151,7 @@ var Puzzle = {
     },
 
     setState: function() {
-      console.log("State set to", this.state);
+      // console.log("State set to", this.state);
 
       switch (this.state) {
         case "DAISY":
@@ -178,8 +178,6 @@ var Puzzle = {
       if (!newColor.isColor) {
         throw new Error('Invalid color given to "Puzzle.changeColor"');
       }
-
-      console.log("Change color to", color);
 
       return gsap.to(this.cube.material.color, {
         duration: time,
@@ -216,7 +214,6 @@ var Puzzle = {
 
     spinTo: function(x, y, z, time = 1) {
       this.unspin();
-      console.log("Attempting to set Cube rotation to", x, y, z);
       // if inputs are null maintain the same rotation
       var newX = x == null ? this.cube.rotation.x : x;
       var newY = y == null ? this.cube.rotation.y : y;

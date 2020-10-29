@@ -1,5 +1,5 @@
 <template>
-  <section id="step2" ref="page" class="page step">
+  <section ref="page" id="pageId" class="page step">
     <PageSticker
       :backgroundColor="stickerColor"
       :transform="stickerRotation"
@@ -9,15 +9,18 @@
       <h1 class="title">
         <span>{{ id }}. </span>{{ title }}
       </h1>
-      <ProgressBar />
+      <ProgressBar ref="bar" :progress="progress" />
       <!-- <GoalDisplay ref="goal" :goal="goal" /> -->
       <div class="page__content grid">
         <div class="instructions">
+          <h3 class="slide">
+            Now we're going to move all the white edges to the bottom layer.
+          </h3>
           <p class="slide">
             With the
             <b>yellow center still facing up</b>, turn the top face until you
-            match up the color of an edge piece with the color of the center
-            that is facing you.
+            match the color of an edge piece with the color of the center that
+            is facing you.
           </p>
           <p class="slide">
             When it's matched up, rotate the front face 90 degrees so that the
@@ -28,11 +31,7 @@
             completed the <em>white cross.</em>
           </p>
         </div>
-        <DemoDisplay
-          ref="demoDisplay"
-          :state="demoPuzzleState"
-          :progress="progress"
-        />
+        <DemoDisplay ref="demoDisplay" :state="demoPuzzleState" />
       </div>
     </div>
   </section>
@@ -67,6 +66,15 @@ export default {
         puzzleState: "WHITECROSS"
       }
     };
+  },
+  computed: {
+    pageId: function() {
+      return "step" + this.id;
+    }
+  },
+  mounted: function() {
+    this.timeline = this.$refs.bar.createTimeline(this);
+    console.log(this.timeline);
   }
 };
 </script>

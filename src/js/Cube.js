@@ -31,12 +31,12 @@ let CUBELETS_OF = {
 
 export default class Cube {
   constructor(state) {
-    console.log("\n\n\n\n         Class of CUBE       \n\n\n\n", state);
+    // console.log("\n\n\n\n         Class of CUBE       \n\n\n\n", state);
 
     this.cubelets = [];
     this.state = this.setState(state);
 
-    this.prettyPrint();
+    // this.prettyPrint();
 
     this.rotate("UP", CCW);
     this.rotate("FRONT", CW);

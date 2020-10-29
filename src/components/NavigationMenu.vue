@@ -40,17 +40,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../css/variables";
 .nav {
-  display: flex;
+  position: fixed;
+  display: none;
   align-items: center;
   font-size: 0.9em;
   font-family: "Montserrat";
   line-height: 2em;
-  position: fixed;
   height: 100%;
   top: 0;
   left: 0;
-  // color: white;
+  @media screen and (min-width: $bp-lg) {
+    display: flex;
+  }
 }
 ul {
   list-style-type: none;
@@ -72,7 +75,7 @@ li.active a {
 a {
   display: inline-block;
   color: hsla(0, 0%, 7%, 0.6);
-  padding: 0.2em 0.4em;
+  padding: 0.1em 0.4em;
   margin-right: -0.4em;
   border-radius: 0.2em;
   transition: all 200ms ease;

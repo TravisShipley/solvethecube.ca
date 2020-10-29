@@ -89,7 +89,8 @@ export default {
   },
 
   props: {
-    state: String
+    state: String,
+    images: Array
   },
 
   data() {

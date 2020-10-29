@@ -1,15 +1,21 @@
 <template>
   <section :id="pageId" ref="page" class="page">
     <div class="page__wrapper">
-      <ProgressBar :progress="progress" />
       <h1 class="title">
         {{ title }}
       </h1>
+      <ProgressBar :progress="progress" backgroundColor="teal" />
       <div class="page__content grid">
         <div class="instructions">
-          <h2>
+          <p class="slide h3 bold">
             Let's learn Cube Notation
-          </h2>
+          </p>
+
+          <p class="slide">
+            <b>Basic cube notation</b> allows us to memorize short sequences of
+            moves called <em>algorithms</em>. These 6 letters are used to
+            represent the faces of the cube:
+          </p>
           <div class="notation">
             <div class="slide notation__item">
               <span class="tc"
@@ -32,14 +38,12 @@
               <span class="tc"
                 ><span class="alg"><span>F</span></span></span
               >
-              <span class="tc"
-                >The <b>FRONT</b> face is always facing you.</span
-              >
+              <span class="tc">The <b>FRONT</b> is always facing you.</span>
             </div>
             <div class="slide notation__item">
               <span class="tc">
                 <span class="alg"><span>B</span></span></span
-              ><span class="tc">The <b>BACK</b> face is away from you.</span>
+              ><span class="tc">The <b>BACK</b> is away from you.</span>
             </div>
             <div class="slide notation__item">
               <span class="tc">
@@ -48,26 +52,26 @@
             </div>
           </div>
           <p class="slide">
-            Each letter represents a 90&deg; <b>clockwise</b> turn of that face
-            as if you were <em>looking at it directly.</em>
+            Each letter indicates a <b>90&deg; clockwise</b> turn of the face. A
+            <b>counterclockwise</b> turn is written with a
+            <em>prime symbol</em> after the letter, such as,
+            <span class="alg">R'</span>.
           </p>
-          <p>
-            <b>Counterclockwise</b> rotations are indicated by an apostrophe, or
-            <em>Prime</em> symbol after the letter, such as,
-            <span class="alg">R' U' F'</span>. This is read as
-            <em>R prime, U prime, F prime.</em>
-          </p>
-          <p>
-            <b><em>Remember: </em></b>rotations are done as if you were
-            <em>looking at the stickers</em> on that side.
+          <p class="slide">
+            <b><em>Important: </em></b>Turns are done as if you were
+            <em>looking directly at the stickers</em> of that face.
           </p>
         </div>
         <div class="demo">
-          <Puzzle ref="notationPuzzle" :state="puzzleState" />
-          <div class="moves">
-            <span class="moves__alg alg"><span>U</span></span>
-            <p class="moves__description">Rotate the UP face 90 degrees.</p>
-          </div>
+          <Puzzle ref="puzzle" :state="puzzleState" />
+          <transition name="fade" mode="out-in">
+            <div class="moves" v-show="forward">
+              <span class="moves__alg alg"
+                ><span>{{ currentStep }}</span></span
+              >
+              <p class="moves__description">{{ currentStepDescription }}</p>
+            </div>
+          </transition>
         </div>
       </div>
     </div>
@@ -90,12 +94,65 @@ export default {
       title: "Before we continue...",
       puzzleState: "SOLVED",
       progress: 0,
-      timeline: null
+      timeline: null,
+      stepIndex: 0,
+      forward: true,
+      steps: [
+        { alg: "R", text: "Rotate the RIGHT face 90° clockwise." },
+        { alg: "L", text: "Rotate the LEFT face 90° clockwise." },
+
+        { alg: "U'", text: "Rotate the UP face 90° counterclockwise." },
+        { alg: "U", text: "Rotate the UP face 90° clockwise." },
+
+        { alg: "R'", text: "Rotate the RIGHT face 90° counterclockwise." },
+        { alg: "L'", text: "Rotate the LEFT face 90° counterclockwise." }
+      ]
     };
+  },
+  computed: {
+    pageId: function() {
+      return "step" + this.id;
+    },
+    currentStep: function() {
+      return this.steps[this.stepIndex].alg;
+    },
+
+    currentStepDescription: function() {
+      return this.steps[this.stepIndex].text;
+    }
   },
   methods: {
     init() {
       console.log("Initialized Moves Interlude");
+
+      const page = this.$refs.page;
+
+      this.timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: page,
+          onUpdate: self => {
+            this.progress = self.progress;
+            this.forward = self.direction == 1;
+          },
+          onEnterBack: () => (this.stepIndex = this.steps.length - 1),
+          scrub: true,
+          pin: true
+        }
+      });
+      console.log(this.stepIndex);
+
+      this.timeline.add(this.$refs.puzzle.spinY());
+      this.timeline.call(this.updateStepIndex);
+
+      this.timeline.add(this.$refs.puzzle.spinX());
+      this.timeline.call(this.updateStepIndex);
+
+      this.timeline.add(this.$refs.puzzle.spinY());
+    },
+    updateStepIndex() {
+      // increment or decrement the step count based on scroll direction
+      // the direction cannot be passed in because the args are froze at instantiation
+      this.stepIndex += this.timeline.scrollTrigger.direction;
     }
   },
   mounted: function() {
@@ -105,13 +162,15 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../css/variables";
+
 .title {
   color: teal;
 }
+
 @media (min-width: $bp-lg) {
   .puzzle-container {
     max-width: 65vh;
-    margin: -2em auto 0;
+    margin: 0 auto;
   }
 }
 .notation__item {
@@ -122,6 +181,10 @@ export default {
     font-size: 1.2em;
     margin-right: 0.5rem;
   }
+}
+
+.slide.alg {
+  font-size: smaller;
 }
 
 .tc {
@@ -135,5 +198,17 @@ export default {
   &__alg {
     font-size: 2em;
   }
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 300ms;
+}
+
+.fade-enter,
+.fade-leave-to
+/* .fade-leave-active in <2.1.8 */
+
+ {
+  opacity: 0;
 }
 </style>
