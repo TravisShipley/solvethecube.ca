@@ -10,13 +10,13 @@
 
       <div class="page__content grid">
         <div class="instructions">
-          <span class="h3 slide bold">Our first two algorithms</span>
+          <h2 class="slide bold">Our first two algorithms</h2>
 
           <div class="slide">
-            To correctly place the white corners in the first layer we're going
-            to learn to use our first two algorithms.
+            To correctly place the white corners and finish our first layer
+            we're going to learn to use our first two algorithms.
           </div>
-          <h3 class="algs slide">
+          <h3 class="algs slide m-t-2">
             <div class="alg">
               <div class="name">Right Trigger</div>
               <span>R</span><span>U</span><span>R'</span><span>U'</span>
@@ -28,6 +28,28 @@
             </div>
           </h3>
           <p class="slide">
+            These algorithms swap a corner piece in the top layer with the
+            corner piece <b>directly below it</b> in the bottom layer.
+          </p>
+          <p>
+            Refer to the demo to see how to apply them to your cube.
+          </p>
+          <p class="slide">
+            Find a <b>white corner</b> in the top layer and put it directly
+            above the corner you wish to swap it with.
+          </p>
+          <p>
+            Depending on the position of your white sticker you may need to do
+            either the<b><em> Right Trigger</em></b> or the
+            <b><em> Left Trigger</em></b> a number of times to correctly place
+            the corner.
+          </p>
+          <p>
+            <b>Important:</b> In the event that you have a white corner in the
+            bottom layer that is incorrectly placed, simply perform one of the
+            triggers on it to move it to the top layer, then solve it correctly.
+          </p>
+          <p class="slide hidden">
             An <b>algorithm</b> is simply a series moves that we can do in
             sequence to achieve a result that we want, and these two simple
             sequences are all we'll need to solve the first layer.
@@ -37,6 +59,7 @@
           ref="demoDisplay"
           :state="demoPuzzleState"
           :images="demoImages"
+          :moves="demoMoves"
         />
       </div>
     </div>
@@ -65,9 +88,15 @@ export default {
       timeline: null,
       showDemo: false,
       demoImages: [
-        "../assets/first-layer-1.png",
-        "../assets/first-layer-2.png",
-        "../assets/first-layer-3.png"
+        "first-layer-1.png",
+        "first-layer-2.png",
+        "first-layer-3.png"
+      ],
+      demoMoves: [
+        { name: "adjust", alg: null },
+        { name: null, alg: "L' U R U' L U R'" },
+        { name: "adjust", alg: null },
+        { name: "The Fish", alg: "R U R' U R U2 R' F" }
       ],
       progress: 0,
       goal: {
@@ -78,19 +107,18 @@ export default {
       }
     };
   },
+  methods: {
+    init() {
+      this.timeline = this.$refs.bar.createTimeline(this);
+    }
+  },
   mounted: function() {
-    this.timeline = this.$refs.bar.createTimeline(this);
+    this.init();
   }
 };
 </script>
 
 <style lang="scss" scoped>
-section {
-  // background: rgb(180, 100, 255);
-}
-.algs {
-  // margin-top: 1.8em;
-}
 .connector-phrase {
   font-style: italic;
   font-size: 0.8em;

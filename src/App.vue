@@ -57,8 +57,8 @@ export default {
           trigger: this.$refs.introPage.$el,
           start: "top-=200 top", // when the top of the trigger hits the top of the viewport
           end: "+=400", // end after scrolling 500px beyond the start
-          scrub: 0.2, // smooth scrubbing, takes 1 second to "catch up" to the scrollbar
-          markers: true
+          scrub: true // smooth scrubbing, takes 1 second to "catch up" to the scrollbar
+          // markers: true
         }
       });
 

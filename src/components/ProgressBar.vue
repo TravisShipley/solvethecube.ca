@@ -28,15 +28,13 @@ export default {
   },
   methods: {
     init() {},
-    createTimeline(page) {
-      console.log(page);
+    createTimeline(page, runOnce = false) {
       return gsap.timeline({
         scrollTrigger: {
           trigger: page.$el,
           scrub: true,
           pin: true,
-          // start: "top top",
-          // end: "bottom+=100%",
+          once: runOnce,
           onUpdate: self => {
             page.progress = self.progress;
           }

@@ -23,18 +23,17 @@ export default {
 .title--hero {
   position: absolute;
   top: 1rem;
-  left: 1rem;
+  // left: 1rem;
   font-size: 25vmin;
   max-width: 4em;
   margin: 0;
   text-align: left;
-  font-weight: 900;
   line-height: 0.8;
   z-index: 100;
-  mix-blend-mode: screen;
-  text-shadow: 0.3rem 0.3rem 0 rgba(255, 235, 60, 0.8),
-    0.3rem -0.3rem 0 rgba(60, 141, 255, 0.8),
-    -0.3rem -0.3rem 0 rgba(255, 60, 102, 0.8),
+  // mix-blend-mode: screen;
+  text-shadow: 0.3rem 0.3rem 0 rgba(255, 235, 60, 0.4),
+    0.3rem -0.3rem 0 rgba(60, 141, 255, 0.4),
+    -0.3rem -0.3rem 0 rgba(255, 60, 102, 0.4),
     0 0.33rem 1rem rgba(25, 41, 64, 0.25);
   @media screen and (min-width: 50em) {
     font-size: 20vmin;
@@ -44,7 +43,7 @@ export default {
 .tagline {
   position: absolute;
   bottom: 16vh;
-  left: 2rem;
+  // left: 2rem;
   margin-top: 1em;
   text-align: left;
   line-height: 1.4;
@@ -72,7 +71,11 @@ export default {
 }
 
 section {
-  background-image: linear-gradient(170deg, #ebe0d9, transparent 70%);
+  background-image: linear-gradient(
+    170deg,
+    rgba(235, 224, 217, 1),
+    rgba(235, 224, 217, 0) 70%
+  );
 }
 </style>
 
@@ -82,6 +85,5 @@ section {
   margin: auto;
   width: 100%;
   height: 100vh;
-  max-width: 1920px;
 }
 </style>

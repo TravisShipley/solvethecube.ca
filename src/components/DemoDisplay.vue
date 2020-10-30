@@ -1,25 +1,30 @@
 <template>
   <div ref="demo" class="demo">
-    <div class="tabs">
-      <div class="tab">
-        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
+    <div class="tabs" v-if="images" ref="tabsContainer">
+      <div
+        ref="tabs"
+        class="tab"
+        v-for="(image, index) in images"
+        :key="image"
+        :class="{ active: index == selectedTab }"
+        @click="selectTab(index)"
+      >
+        <img class="contain" :src="require('@/assets/' + image)" />
       </div>
-      <div class="tab active">
-        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
-      </div>
-      <!-- <div class="tab">
-        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
-      </div>
-      <div class="tab">
-        <img class="contain" src="../assets/solved-cube-1.png" alt="" />
-      </div> -->
+      <div
+        class="selector"
+        ref="selector"
+        :style="{ left: selectorOffset + 'px' }"
+      ></div>
     </div>
+
     <div class="demo__puzzle">
       <Puzzle ref="puzzle" :state="puzzleState" />
     </div>
     <div class="controller">
       <div class="controller__btn accent-color" @click="isPlaying = !isPlaying">
         <font-awesome-icon icon="play" size="2x" v-show="!isPlaying" />
+        <font-awesome-icon icon="pause" size="2x" v-show="isPlaying" />
       </div>
       <div class="scrubber">
         <div
@@ -44,7 +49,7 @@
         <font-awesome-icon icon="step-backward" size="2x" />
       </div>
     </div>
-    <div class="moves">
+    <div class="moves" v-if="moves">
       <div class="adj">
         <font-awesome-icon icon="cube" size="1x" />
       </div>
@@ -71,6 +76,7 @@ import Puzzle from "./Puzzle";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faPlay,
+  faPause,
   faStepForward,
   faStepBackward,
   faSyncAlt,
@@ -78,7 +84,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-library.add(faPlay, faStepForward, faStepBackward, faSyncAlt, faCube);
+library.add(faPlay, faStepForward, faStepBackward, faSyncAlt, faCube, faPause);
 
 export default {
   name: "DemoDisplay",
@@ -90,7 +96,8 @@ export default {
 
   props: {
     state: String,
-    images: Array
+    images: Array,
+    moves: Array
   },
 
   data() {
@@ -98,7 +105,8 @@ export default {
       active: false,
       puzzleState: null,
       timeline: null,
-      message: null,
+      selectedTab: 0,
+      selectorOffset: 0,
       scrubPosition: null
     };
   },
@@ -119,6 +127,7 @@ export default {
         if (play) {
           this.playTimeline();
         } else {
+          gsap.killTweensOf(this.$refs.thumb);
           this.timeline.pause();
         }
         console.log("IS THE TIMELINE PLAYING:", play);
@@ -146,7 +155,7 @@ export default {
         type: "x",
         bounds: container,
         edgeResistance: 0.75,
-        onClick: function(self) {
+        onClick: function() {
           console.log("clicked the scrubber thumb");
         },
 
@@ -161,8 +170,6 @@ export default {
         },
         onDragParams: [this]
       });
-
-      // this.playTimeline();
     },
     playTimeline() {
       if (this.timeline.progress() == 1) this.timeline.restart();
@@ -171,6 +178,7 @@ export default {
       let xDistance =
         this.$refs.container.clientWidth - this.$refs.thumb.clientWidth;
 
+      // TODO why didn't I just create a timeline for the scrubber too?
       gsap.set(this.$refs.thumb, { x: xDistance * this.timeline.progress() });
 
       gsap.to(this.$refs.thumb, {
@@ -210,6 +218,11 @@ export default {
       gsap.killTweensOf(t);
 
       if (!this.timeline.paused()) this.playTimeline();
+    },
+    selectTab(index) {
+      this.selectedTab = index;
+      console.log(this.$refs.tabs);
+      this.selectorOffset = this.$refs.tabs[index].offsetLeft;
     }
   },
 
@@ -218,7 +231,6 @@ export default {
       paused: true,
       onComplete: function() {
         this.isPlaying = false;
-        console.log(this.isPlaying);
       }
     });
     this.puzzleState = this.state;
@@ -227,6 +239,7 @@ export default {
 
   mounted() {
     this.init();
+    if (this.images) this.selectTab(0);
   }
 };
 </script>
@@ -304,12 +317,13 @@ $scrubber_size: 2em;
     width: $controller_size;
     height: $controller_size;
     cursor: pointer;
+
     &:active {
-      background: rgba(255, 255, 255, 0.507);
+      // background: rgba(255, 255, 255, 0.507);
     }
   }
   &__btn:last-child {
-    align-items: left;
+    // align-items: left;
   }
 }
 .scrubber {
@@ -353,33 +367,45 @@ $scrubber_size: 2em;
   }
 }
 .tabs {
+  position: relative;
   display: flex;
   justify-content: center;
-  // text-align: center;
   height: 4em;
 
+  .selector,
   .tab {
     max-width: 25%;
-    background: white;
     border-radius: 8px;
-    // border: 1px solid;
-    margin: 0.5em 0.25em;
+    margin: 0.5em 0;
     padding: 0.25em;
     height: 100%;
     width: 100%;
     transition: all 200ms;
+    cursor: pointer;
+  }
+  .tab {
     img {
       max-height: 100%;
+      opacity: 0.7;
+      transform: scale(0.8);
       transition: all 200ms;
     }
-    &:not(.active):not(:hover) {
-      cursor: pointer;
-      background: transparent;
-      img {
-        opacity: 0.7;
-        transform: scale(0.8);
-      }
+
+    &.active {
+      cursor: initial;
     }
+
+    &.active img,
+    &:hover img {
+      opacity: 1;
+      transform: initial;
+    }
+  }
+  .selector {
+    position: absolute;
+
+    background: white;
+    z-index: -1;
   }
 }
 </style>

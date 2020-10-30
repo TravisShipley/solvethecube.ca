@@ -18,7 +18,7 @@
           </h3>
           <p class="piece-description piece-description--center">
             The 6 center pieces are attached to the core of the cube. They can
-            rotate but they never swap around. This means that
+            rotate but they <b>never move</b>. This means that
             <b>the yellow face is always opposite the white face.</b>
           </p>
         </div>
@@ -30,8 +30,8 @@
             </HighlightedText>
           </h3>
           <p class="piece-description piece-description--edge">
-            There are only 2 colours on the edge pieces, and each face has 4
-            edges.
+            The cube has 12 edge pieces. Each of these has only have 2 colours,
+            but there are more of them than any other piece.
           </p>
         </div>
 
@@ -42,8 +42,10 @@
             </HighlightedText>
           </h3>
           <p class="piece-description piece-description--corner">
-            The corner pieces have 3 colours. Notice how the middle layer has NO
-            corner pieces.
+            Only the top and bottom layer have corner pieces, and each one has
+            either a yellow sticker or a white sticker. We can think of them as
+            the
+            <b>yellow corners</b> and the <b>white corners.</b>
           </p>
         </div>
       </div>
@@ -103,7 +105,8 @@ export default {
           endTrigger: page,
           start: "top+=10px top",
           end: "bottom+=100%",
-          scrub: true,
+          scrub: 0.2,
+          invalidateOnRefresh: true,
 
           // markers: {
           //   startColor: "darkgreen",
@@ -127,8 +130,13 @@ export default {
       gsap.set(cube.$el, { y: 0 });
 
       this.heroTimeline
-        .to(
+        .fromTo(
           cube.$el,
+          {
+            y: 0,
+            scale: 1.2,
+            ease: "back.inOut"
+          },
           {
             duration: 1,
             // x: "10",
@@ -169,7 +177,7 @@ export default {
         scrollTrigger: {
           trigger: page,
           scrub: true,
-          pin: true,
+          // pin: true,
           end: "bottom+=100%",
           once: true
         }

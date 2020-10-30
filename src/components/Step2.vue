@@ -13,9 +13,18 @@
       <!-- <GoalDisplay ref="goal" :goal="goal" /> -->
       <div class="page__content grid">
         <div class="instructions">
-          <h3 class="slide">
-            Now we're going to move all the white edges to the bottom layer.
-          </h3>
+          <h2 class="slide">
+            Now we move all the white edges to the bottom.
+          </h2>
+          <p class="slide">
+            The cube is not solved one face at a time, but rather
+            <b>layer by layer</b>, from the bottom up.
+          </p>
+          <p>
+            Now that we've collected all the white edges around the yellow
+            center we're ready to place them in their solved positions in the
+            bottom layer.
+          </p>
           <p class="slide">
             With the
             <b>yellow center still facing up</b>, turn the top face until you

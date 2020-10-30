@@ -5,20 +5,22 @@
       <h1 class="title">
         <span>{{ id }}. </span>{{ title }}
       </h1>
-      <ProgressBar :progress="progress" />
-      <GoalDisplay ref="goal" :goal="goal" @active="onGoalActive" />
+      <ProgressBar ref="bar" :progress="progress" />
+      <!-- <GoalDisplay ref="goal" :goal="goal" @active="onGoalActive" /> -->
       <div class="page__content grid" v-if="showDemo">
         <div class="instructions">
+          <h2 class="slide">A humble beginning.</h2>
           <p class="slide">
             Start by holding your cube with the
             <b>yellow center facing up</b>. This is how you'll hold the cube for
             the entire solve.
           </p>
           <p class="slide">
-            One by one, find the <b>white edges</b> and move them up next to the
-            yellow center. Ignore all the other pieces.
+            One at a time, find the <b>white edges</b> and move them up next to
+            the yellow center. Ignore all the other pieces.
           </p>
           <p class="slide">
+            Pay careful attention to how moving one edge may affect the others.
             If you have trouble, play this demo a few times to see how it's
             done.
           </p>
@@ -66,7 +68,7 @@ export default {
       stickerRotation: "rotate(6deg)",
       demoPuzzleState: "PRE_DAISY_1",
       timeline: null,
-      showDemo: false,
+      showDemo: true,
       progress: 0,
       goal: {
         id: 0,
@@ -84,28 +86,29 @@ export default {
 
   methods: {
     init: function() {
-      this.createProgressController();
+      let once = true;
+      this.timeline = this.$refs.bar.createTimeline(this, once);
+
+      this.timeline.add(
+        gsap.from("#step1 .slide", {
+          y: 60,
+          alpha: 0,
+          ease: "back.out",
+          stagger: {
+            each: 1,
+            delay: function(index) {
+              return 2 * index;
+            }
+          }
+        })
+      );
     }, // end init
     onGoalActive: function(value) {
       this.showDemo = !value;
     },
-    createProgressController: function() {
-      const page = this.$refs.page;
-
-      this.timeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: page,
-          scrub: true,
-          pin: true,
-          // start: "top top",
-          // end: "bottom+=100%",
-          onUpdate: self => {
-            this.progress = self.progress;
-          }
-        }
-      });
-    },
-    onDemoComplete: function() {}
+    onDemoComplete: function() {
+      console.log("demo done");
+    }
   },
   created() {},
   mounted() {

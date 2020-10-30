@@ -7,9 +7,9 @@
       <ProgressBar :progress="progress" backgroundColor="teal" />
       <div class="page__content grid">
         <div class="instructions">
-          <p class="slide h3 bold">
+          <h2 class="slide">
             Let's learn Cube Notation
-          </p>
+          </h2>
 
           <p class="slide">
             <b>Basic cube notation</b> allows us to memorize short sequences of
@@ -62,8 +62,10 @@
             <em>looking directly at the stickers</em> of that face.
           </p>
         </div>
+
         <div class="demo">
           <Puzzle ref="puzzle" :state="puzzleState" />
+
           <transition name="fade" mode="out-in">
             <div class="moves" v-show="forward">
               <span class="moves__alg alg"
@@ -198,17 +200,5 @@ export default {
   &__alg {
     font-size: 2em;
   }
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 300ms;
-}
-
-.fade-enter,
-.fade-leave-to
-/* .fade-leave-active in <2.1.8 */
-
- {
-  opacity: 0;
 }
 </style>
