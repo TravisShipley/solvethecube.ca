@@ -127,6 +127,7 @@ export default {
         if (play) {
           this.playTimeline();
         } else {
+          // TODO shouldn't just be killing this
           gsap.killTweensOf(this.$refs.thumb);
           this.timeline.pause();
         }
@@ -142,14 +143,16 @@ export default {
       this.$emit("complete");
       let thumb = this.$refs.thumb;
       let container = this.$refs.container;
+      let cube = this.$refs.puzzle;
 
       this.timeline
-        .add(this.$refs.puzzle.spinX())
-        .add(this.$refs.puzzle.changeColor(0xd1ccc0), "<")
+        .add(cube.spinTo(0.5, 2.5, 0))
         .add(this.$refs.puzzle.spinY())
-        .add(this.$refs.puzzle.changeColor(0x6ab04c), "<")
-        .add(this.$refs.puzzle.spinX())
-        .add(this.$refs.puzzle.changeColor(0x2f3542), "<");
+        // .add(this.$refs.puzzle.changeColor(0xd1ccc0), "<")
+        .add(this.$refs.puzzle.spinY())
+        // .add(this.$refs.puzzle.changeColor(0x6ab04c), "<")
+        .add(this.$refs.puzzle.spinX());
+      // .add(this.$refs.puzzle.changeColor(0x2f3542), "<");
 
       Draggable.create(thumb, {
         type: "x",
@@ -163,8 +166,8 @@ export default {
           if (!this.timeline.paused) this.playTimeline();
         },
         onDrag: function(that) {
-          // make sure that we don't set the progress to less than 0
           this.isPlaying = false;
+          // make sure that we don't set the progress to less than 0
           let p = Math.max(0, this.x / this.maxX);
           that.timeline.progress(p);
         },
@@ -310,7 +313,7 @@ $scrubber_size: 2em;
   height: $controller_size;
 
   &__btn {
-    color: tomato;
+    color: #121212;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -353,6 +356,7 @@ $scrubber_size: 2em;
     height: $scrubber_size;
     width: $scrubber_size;
     float: right;
+    background: #121212;
 
     &:hover,
     &:focus,

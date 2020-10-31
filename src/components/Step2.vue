@@ -1,5 +1,5 @@
 <template>
-  <section ref="page" id="pageId" class="page step">
+  <section ref="page" id="step2" class="page step">
     <PageSticker
       :backgroundColor="stickerColor"
       :transform="stickerRotation"
@@ -20,7 +20,7 @@
             The cube is not solved one face at a time, but rather
             <b>layer by layer</b>, from the bottom up.
           </p>
-          <p>
+          <p class="slide">
             Now that we've collected all the white edges around the yellow
             center we're ready to place them in their solved positions in the
             bottom layer.
@@ -40,7 +40,13 @@
             completed the <em>white cross.</em>
           </p>
         </div>
-        <DemoDisplay ref="demoDisplay" :state="demoPuzzleState" />
+        <transition name="fade" mode="out-in" appear>
+          <DemoDisplay
+            ref="demoDisplay"
+            :state="demoPuzzleState"
+            v-show="ready"
+          />
+        </transition>
       </div>
     </div>
   </section>
@@ -67,6 +73,7 @@ export default {
       stickerLeft: "40%",
       demoPuzzleState: "SOLVED",
       timeline: null,
+      ready: false,
       progress: 0,
       goal: {
         id: 0,
@@ -81,9 +88,45 @@ export default {
       return "step" + this.id;
     }
   },
+  methods: {
+    init: function() {
+      this.timeline = this.$refs.bar.createTimeline(this);
+
+      let appearTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#step2",
+          start: "top center",
+          end: "center top",
+          // once: true,
+          // markers: true,
+          scrub: 0.2,
+          // onLeave: () => (this.ready = false),
+          // onEnterBack: () => (this.ready = true),
+          // onLeaveBack: () => (this.ready = false),
+          onToggle: () => (this.ready = !this.ready)
+        }
+      });
+
+      appearTimeline.add(
+        gsap.from("#step2 .slide", {
+          duration: 2,
+          y: function(index) {
+            return 30 * (index + 1);
+          },
+          alpha: 0,
+          ease: "power3.inOut",
+          stagger: {
+            each: 0.2,
+            delay: function(index) {
+              return 2 * index;
+            }
+          }
+        })
+      );
+    }
+  },
   mounted: function() {
-    this.timeline = this.$refs.bar.createTimeline(this);
-    console.log(this.timeline);
+    this.init();
   }
 };
 </script>

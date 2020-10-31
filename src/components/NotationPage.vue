@@ -102,12 +102,11 @@ export default {
       steps: [
         { alg: "R", text: "Rotate the RIGHT face 90° clockwise." },
         { alg: "L", text: "Rotate the LEFT face 90° clockwise." },
-
         { alg: "U'", text: "Rotate the UP face 90° counterclockwise." },
-        { alg: "U", text: "Rotate the UP face 90° clockwise." },
 
         { alg: "R'", text: "Rotate the RIGHT face 90° counterclockwise." },
-        { alg: "L'", text: "Rotate the LEFT face 90° counterclockwise." }
+        { alg: "L'", text: "Rotate the LEFT face 90° counterclockwise." },
+        { alg: "U", text: "Rotate the UP face 90° clockwise." }
       ]
     };
   },
@@ -128,6 +127,7 @@ export default {
       console.log("Initialized Moves Interlude");
 
       const page = this.$refs.page;
+      const cube = this.$refs.puzzle;
 
       this.timeline = gsap.timeline({
         scrollTrigger: {
@@ -141,20 +141,21 @@ export default {
           pin: true
         }
       });
-      console.log(this.stepIndex);
 
-      this.timeline.add(this.$refs.puzzle.spinY());
-      this.timeline.call(this.updateStepIndex);
+      for (let i in this.steps) {
+        // set the index counter
+        this.timeline.call(this.updateStepIndex, [i]);
 
-      this.timeline.add(this.$refs.puzzle.spinX());
-      this.timeline.call(this.updateStepIndex);
+        // add the algorithm to the timeline
+        this.timeline.add(cube.getMove(this.steps[i].alg));
 
-      this.timeline.add(this.$refs.puzzle.spinY());
+        // set the index again for when we scrub backwards
+        this.timeline.call(this.updateStepIndex, [i]);
+      }
     },
-    updateStepIndex() {
-      // increment or decrement the step count based on scroll direction
-      // the direction cannot be passed in because the args are froze at instantiation
-      this.stepIndex += this.timeline.scrollTrigger.direction;
+    // we need a function to pass to gsap to update the index
+    updateStepIndex(n) {
+      this.stepIndex = n;
     }
   },
   mounted: function() {
@@ -167,6 +168,7 @@ export default {
 
 .title {
   color: teal;
+  text-shadow: none;
 }
 
 @media (min-width: $bp-lg) {

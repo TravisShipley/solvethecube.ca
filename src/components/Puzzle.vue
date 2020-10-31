@@ -12,6 +12,8 @@ import * as THREE from "three";
 
 import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
+import { MATERIALS } from "../js/Materials.js";
+import { log, MeshPhongMaterial as mesh } from "three";
 
 var Puzzle = {
   name: "Puzzle",
@@ -22,8 +24,9 @@ var Puzzle = {
       renderer: null,
       material: null,
       cube: null,
+      cubes: null,
       model: null,
-      lights: null,
+      side: null,
       container: null,
       canvas: null,
       timeline: null,
@@ -54,7 +57,7 @@ var Puzzle = {
       this.canvas = document.getElementById("canvas");
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(20, 1);
-      this.camera.position.set(0, 0, 5);
+      this.camera.position.set(0, 0, 15);
 
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -65,31 +68,71 @@ var Puzzle = {
       this.container.appendChild(this.renderer.domElement);
       this.canvas = this.renderer.domElement;
 
-      // the lighting setup
-      this.lights = new Lighting();
-
       // create a new cube
 
-      this.material = new THREE.MeshPhongMaterial({
-        color: 0xfca600,
-        transparent: true
-      });
-      this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), this.material);
-
       this.model = new Cube(this.state);
+      this.cube = new THREE.Group();
 
-      this.cube.rotation.set(1, 1, 1);
+      var shapes = [
+        this.roundedRect(0.2, 0.2, 0.2, 0.2),
+        this.roundedRect(0.1, 0.1, 0.1, 0.1),
+        this.roundedRect(0.1, 0.1, 0.1, 0.1)
+      ];
+
+      this.cubes = [];
+
+      for (let c of this.model.cubelets) {
+        var cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), MATERIALS.K);
+        this.cubes.push(cube);
+
+        let sticker;
+
+        for (let key in c.colors) {
+          // console.log(c.colors[key]);
+          let color = c.colors[key];
+          if (color) {
+            // cube.add(this.getSticker());
+            console.log(key, ":", color);
+            console.log(this.model.position);
+            sticker = this.getSticker(
+              shapes[c.stickerCount - 1],
+              MATERIALS[color],
+              key,
+              c.x,
+              c.y,
+              c.z
+            );
+            cube.add(sticker);
+          }
+        }
+
+        cube.position.set(c.x, c.y, c.z);
+        this.cube.add(cube);
+      }
+
+      this.cube.rotation.set(0.5, -0.6, 0);
 
       // add the cube to the scene
       this.scene.add(this.cube);
 
+      // the lighting setup
+      const lights = new Lighting();
+
       // add all the lights
-      for (let light of this.lights) {
+      for (let light of lights) {
         this.scene.add(light);
       }
 
-      // console.log("puzzle state:", this.state);
-      this.setState();
+      var side = new THREE.Group();
+      this.cube.add(side);
+
+      for (let c of this.cubes) {
+        // console.log(c.position.x);
+        if (c.position.x == 1) {
+          side.add(c);
+        }
+      }
+      side.rotation.x = 2;
 
       this.render();
       // this.animate();
@@ -100,6 +143,7 @@ var Puzzle = {
       requestAnimationFrame(this.render);
     },
     animate: function() {
+      this.resizeCanvasToDisplaySize();
       requestAnimationFrame(this.animate);
       this.renderer.render(this.scene, this.camera);
     },
@@ -124,6 +168,7 @@ var Puzzle = {
         ease: "power3.out"
       });
     },
+
     spinX: function() {
       return gsap.to(this.cube.rotation, {
         duration: 1,
@@ -140,51 +185,123 @@ var Puzzle = {
     },
 
     showOnlyCenters: function() {
-      return this.changeColor(0x6e2aad); // purple
+      // return this.changeColor(0x6e2aad); // purple
     },
 
     showOnlyEdges: function() {
-      return this.changeColor(0x156ead); // blue
+      // return this.changeColor(0x156ead); // blue
     },
     showOnlyCorners: function() {
-      return this.changeColor(0xffd608); //gold
+      // return this.changeColor(0xffd608); //gold
     },
 
-    setState: function() {
-      // console.log("State set to", this.state);
+    getSticker: function(shape, material, dir, x, y, z) {
+      // flat shape
+      let s = 0.9; // sticker scale
+      var geometry = new THREE.ShapeBufferGeometry(shape);
+      var sticker = new THREE.Mesh(geometry, material);
+      var r = Math.PI / 2;
+      let depth = 0.501;
 
-      switch (this.state) {
-        case "DAISY":
-          this.changeColor(0xeb4034, 0);
-          break;
-        case "SOLVED":
-          this.changeColor(0x008888, 0);
-          break;
+      sticker.scale.set(s, s, s);
 
-        case "PRE_DAISY_1":
-          this.changeColor(0x345098, 0);
+      switch (dir) {
+        case "UP":
+          sticker.position.set(0, depth * y, 0);
+          sticker.rotation.set(-r, 0, 0);
           break;
-        default:
-          this.changeColor(0x112222, 0);
+        case "DOWN":
+          sticker.position.set(0, depth * y, 0);
+          sticker.rotation.set(r, 0, 0);
+          break;
+        case "RIGHT":
+          sticker.position.set(depth * x, 0, 0);
+          sticker.rotation.set(0, r, 0);
+          break;
+        case "LEFT":
+          sticker.position.set(depth * x, 0, 0);
+          sticker.rotation.set(0, -r, 0);
+          break;
+        case "FRONT":
+          sticker.position.set(0, 0, depth * z);
+          sticker.rotation.set(0, 0, 0);
+          break;
+        case "BACK":
+          sticker.position.set(0, 0, depth * z);
+          sticker.rotation.set(0, r * 2, 0);
           break;
       }
+
+      return sticker;
+    },
+
+    roundedRect: function(rad1, rad2, rad3, rad4) {
+      var y = -0.5;
+      var x = -0.5;
+      var height = 1;
+      var width = 1;
+      var shape = new THREE.Shape();
+
+      shape.moveTo(x, y + rad1);
+      shape.lineTo(x, y + height - rad1);
+      shape.quadraticCurveTo(x, y + height, x + rad1, y + height);
+      shape.lineTo(x + width - rad2, y + height);
+      shape.quadraticCurveTo(
+        x + width,
+        y + height,
+        x + width,
+        y + height - rad2
+      );
+      shape.lineTo(x + width, y + rad3);
+      shape.quadraticCurveTo(x + width, y, x + width - rad3, y);
+      shape.lineTo(x + rad4, y);
+      shape.quadraticCurveTo(x, y, x, y + rad4);
+
+      return shape;
     },
 
     changeColor: function(color, time = 1) {
-      if (!color) {
-        throw new Error('No color given to "Puzzle.changeColor"');
-      }
-      let newColor = new THREE.Color(color);
-      if (!newColor.isColor) {
-        throw new Error('Invalid color given to "Puzzle.changeColor"');
+      // if (!color) {
+      //   throw new Error('No color given to "Puzzle.changeColor"');
+      // }
+      // let newColor = new THREE.Color(color);
+      // if (!newColor.isColor) {
+      //   throw new Error('Invalid color given to "Puzzle.changeColor"');
+      // }
+      // return gsap.to(this.cube.material.color, {
+      //   duration: time,
+      //   r: newColor.r,
+      //   g: newColor.g,
+      //   b: newColor.b
+      // });
+      return null;
+    },
+    getMove: function(str) {
+      let xValue = "+=0";
+      let yValue = "+=0";
+      let zValue = "+=0";
+      const qtr = Math.PI / 4;
+
+      switch (str) {
+        case "R":
+        case "R'":
+          xValue = "+=" + -qtr;
+          break;
+        case "L":
+        case "L'":
+          xValue = "+=" + qtr;
+          break;
+        case "U'":
+        case "U":
+          yValue = "+=" + qtr;
+          break;
+        case "F'":
+        case "F":
+          zValue = "+=" + qtr;
+          break;
       }
 
-      return gsap.to(this.cube.material.color, {
-        duration: time,
-        r: newColor.r,
-        g: newColor.g,
-        b: newColor.b
-      });
+      return this.spinTo(xValue, yValue, zValue);
     },
 
     spinContinuously: function() {

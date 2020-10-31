@@ -87,7 +87,7 @@ export default {
   methods: {
     init: function() {
       let once = true;
-      this.timeline = this.$refs.bar.createTimeline(this, once);
+      this.timeline = this.$refs.bar.createTimeline(this);
 
       this.timeline.add(
         gsap.from("#step1 .slide", {

@@ -5,30 +5,40 @@
 </template>
 
 <script>
+import { log } from "three";
 export default {
   name: "ProgressBar",
   data() {
     return {
       timeline: null,
-      internalProgress: null
+      completed: false
     };
   },
   props: {
     progress: { value: Number, default: 100 },
+    once: { value: Boolean, default: false },
     backgroundColor: {
       value: String,
       default: "#ffffff"
     }
   },
-
+  watch: {
+    progress: function() {
+      // console.log(this.progress, this.completed);
+      this.completed = this.completed || this.progress > 0.99;
+    }
+  },
   computed: {
     transform: function() {
-      return `scaleX(${this.progress})`;
+      // if the ONCE flag is set and has completed previously...
+      let p = this.once && this.completed ? 1 : this.progress;
+      return `scaleX(${p})`;
     }
   },
   methods: {
     init() {},
-    createTimeline(page, runOnce = false) {
+    createTimeline(page) {
+      let runOnce = this.once;
       return gsap.timeline({
         scrollTrigger: {
           trigger: page.$el,
@@ -37,7 +47,8 @@ export default {
           once: runOnce,
           onUpdate: self => {
             page.progress = self.progress;
-          }
+          },
+          onEnter: () => console.log(this.transform)
         }
       });
     }

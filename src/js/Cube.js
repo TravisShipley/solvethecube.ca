@@ -38,10 +38,10 @@ export default class Cube {
 
     // this.prettyPrint();
 
-    this.rotate("UP", CCW);
-    this.rotate("FRONT", CW);
-    this.rotate("DOWN", CW);
-    this.rotate("RIGHT", CW);
+    // this.rotate("UP", CCW);
+    // this.rotate("FRONT", CW);
+    // this.rotate("DOWN", CW);
+    // this.rotate("RIGHT", CW);
   }
 
   rotate(face, direction) {
@@ -190,6 +190,10 @@ class Cubelet {
         else if (c == BACK) this.z = -1;
       }
     }
+  }
+
+  get stickerCount() {
+    return Math.abs(this.x) + Math.abs(this.y) + Math.abs(this.z);
   }
 
   get location() {

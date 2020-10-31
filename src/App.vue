@@ -10,6 +10,7 @@
     <NotationPage ref="notation" />
     <div class="gap"></div>
     <Step3 ref="step3" />
+    <div class="gap"></div>
     <NavigationMenu ref="nav" />
   </div>
 </template>

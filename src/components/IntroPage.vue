@@ -2,7 +2,7 @@
   <section id="intro" ref="page" class="page page--intro-page">
     <PageSticker :background-color="stickerColor" />
     <div class="page__wrapper">
-      <h1 class="title title--intro">But first...</h1>
+      <h1 class="title title--intro slide">But first...</h1>
       <ProgressBar :progress="progress" />
       <div class="page__content">
         <div class="slide">
@@ -134,7 +134,7 @@ export default {
           cube.$el,
           {
             y: 0,
-            scale: 1.2,
+            // scale: 1.2,
             ease: "back.inOut"
           },
           {
@@ -146,7 +146,7 @@ export default {
           },
           0
         )
-        .add(cube.changeColor(0xee0231), 0)
+        // .add(cube.changeColor(0xee0231), 0)
         .add(cube.spinTo(0.5, 2.5, 0), 0) // white face up
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
 
@@ -156,8 +156,8 @@ export default {
         .add(cube.showOnlyEdges())
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
 
-        .add(cube.showOnlyCorners())
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<");
+        .add(cube.showOnlyCorners());
+      // .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<");
 
       // Timeline for the intro page
       this.timeline = gsap.timeline({
