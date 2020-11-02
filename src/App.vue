@@ -3,13 +3,13 @@
     <HeroPage ref="heroPage" />
     <IntroPage ref="introPage" />
     <div class="gap"></div>
-    <Step1 ref="step1" />
+    <!-- <Step1 ref="step1" /> -->
     <div class="gap"></div>
-    <Step2 ref="step2" />
+    <!-- <Step2 ref="step2" /> -->
     <div class="gap"></div>
-    <NotationPage ref="notation" />
+    <!-- <NotationPage ref="notation" /> -->
     <div class="gap"></div>
-    <Step3 ref="step3" />
+    <!-- <Step3 ref="step3" /> -->
     <div class="gap"></div>
     <NavigationMenu ref="nav" />
   </div>

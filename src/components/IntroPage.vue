@@ -50,7 +50,12 @@
         </div>
       </div>
     </div>
-    <Puzzle ref="heroPuzzle" :state="puzzleState" class="hero-puzzle" />
+    <Puzzle
+      ref="heroPuzzle"
+      class="hero-puzzle"
+      :sphere="true"
+      :state="puzzleState"
+    />
   </section>
 </template>
 
@@ -105,7 +110,7 @@ export default {
           endTrigger: page,
           start: "top+=10px top",
           end: "bottom+=100%",
-          scrub: 0.2,
+          scrub: 0.5,
           invalidateOnRefresh: true,
 
           // markers: {
@@ -146,18 +151,32 @@ export default {
           },
           0
         )
-        // .add(cube.changeColor(0xee0231), 0)
-        .add(cube.spinTo(0.5, 2.5, 0), 0) // white face up
+
+        .add(cube.spinTo(0.5, 2.5, 0, 0.5), 0) // white face up
+        .add(cube.getMove("F"), 0)
+        .add(cube.getMove("R"))
+        .add(cube.getMove("U"))
+        .add(cube.getMove("L"))
+        .add(cube.getMove("U'"))
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 2)
+        .add(cube.getMove("R'"))
+        .add(cube.getMove("L'"))
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 3)
+        // .add(cube.getMove("L"))
+        // .call(console.log, ["Trying to rotate FRONT"])
+        // .call(cube.model.rotate, ["FRONT", 1], 1)
+        // .call(cube.model.rotate, ["LEFT", 1], 2)
+        // .call(cube.model.rotate, ["UP", 1], 3)
+        // .call(cube.model.prettyPrint, null, 4)
+        // .call(cube.showOnlyCenters)
+        // .call(cube.showOnlyCenters)
+        // .call(cube.showOnlyEdges)
+        // .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
+        // .call(cube.showOnlyEdges)
+        // .call(cube.showOnlyCorners)
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
-
-        .add(cube.showOnlyCenters())
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
-
-        .add(cube.showOnlyEdges())
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<")
-
-        .add(cube.showOnlyCorners());
-      // .add(cube.spinTo("+=0", "+=3.1415", "+=0"), "<");
+        // .call(cube.showOnlyCorners)
+        .call(cube.showAll);
 
       // Timeline for the intro page
       this.timeline = gsap.timeline({
@@ -178,8 +197,8 @@ export default {
           trigger: page,
           scrub: true,
           // pin: true,
-          end: "bottom+=100%",
-          once: true
+          once: true,
+          end: "bottom+=100%"
         }
       });
 

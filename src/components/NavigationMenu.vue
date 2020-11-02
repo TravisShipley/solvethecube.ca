@@ -31,7 +31,7 @@ export default {
         { id: "step8", value: "Step 8." },
         { id: "examples", value: "Examples." },
         { id: "cheatsheet", value: "Cheatsheet." },
-        { id: "colophon", value: "Colophon." }
+        { id: "credits", value: "Credits." }
       ]
     };
   },

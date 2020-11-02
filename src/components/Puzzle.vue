@@ -12,8 +12,8 @@ import * as THREE from "three";
 
 import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
+import { COLORS } from "../js/Colors.js";
 import { MATERIALS } from "../js/Materials.js";
-import { log, MeshPhongMaterial as mesh } from "three";
 
 var Puzzle = {
   name: "Puzzle",
@@ -23,11 +23,11 @@ var Puzzle = {
       scene: null,
       renderer: null,
       material: null,
+      model: null,
       cube: null,
       cubes: null,
-      model: null,
-      side: null,
-      container: null,
+      activeCubes: null,
+
       canvas: null,
       timeline: null,
       origin: null,
@@ -39,6 +39,10 @@ var Puzzle = {
     state: {
       type: String,
       default: "SOLVED"
+    },
+    sphere: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -53,8 +57,8 @@ var Puzzle = {
     init() {
       console.log("\n\nPuzzle Init ====================================\n");
 
-      this.container = this.$refs.container;
-      this.canvas = document.getElementById("canvas");
+      const container = this.$refs.container;
+
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(20, 1);
       this.camera.position.set(0, 0, 15);
@@ -64,8 +68,8 @@ var Puzzle = {
         alpha: true
       });
 
-      this.renderer.setSize(this.container.width, this.container.height);
-      this.container.appendChild(this.renderer.domElement);
+      this.renderer.setSize(container.width, container.height);
+      container.appendChild(this.renderer.domElement);
       this.canvas = this.renderer.domElement;
 
       // create a new cube
@@ -73,41 +77,48 @@ var Puzzle = {
       this.model = new Cube(this.state);
       this.cube = new THREE.Group();
 
-      var shapes = [
-        this.roundedRect(0.2, 0.2, 0.2, 0.2),
-        this.roundedRect(0.1, 0.1, 0.1, 0.1),
-        this.roundedRect(0.1, 0.1, 0.1, 0.1)
-      ];
+      if (this.sphere) {
+        var sphere = new THREE.Mesh(
+          new THREE.SphereGeometry(1.2, 24, 24),
+          new THREE.MeshStandardMaterial({ color: MATERIALS.BLACK })
+        );
+        this.cube.add(sphere);
+      }
 
       this.cubes = [];
 
       for (let c of this.model.cubelets) {
-        var cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), MATERIALS.K);
-        this.cubes.push(cube);
+        var piece = this.getPiece();
 
+        piece.data = c; // attach the cubelet data directly to the piece.
         let sticker;
 
         for (let key in c.colors) {
-          // console.log(c.colors[key]);
           let color = c.colors[key];
+
           if (color) {
-            // cube.add(this.getSticker());
-            console.log(key, ":", color);
-            console.log(this.model.position);
             sticker = this.getSticker(
-              shapes[c.stickerCount - 1],
+              c.stickerCount - 1,
               MATERIALS[color],
               key,
               c.x,
               c.y,
               c.z
             );
-            cube.add(sticker);
+
+            piece.stickers[key] = sticker;
+            piece.obj.add(sticker);
           }
         }
 
-        cube.position.set(c.x, c.y, c.z);
-        this.cube.add(cube);
+        this.cubes.push(piece);
+
+        piece.position.x = c.x;
+        piece.position.y = c.y;
+        piece.position.z = c.z;
+
+        piece.obj.position.set(c.x, c.y, c.z);
+        this.cube.add(piece.obj);
       }
 
       this.cube.rotation.set(0.5, -0.6, 0);
@@ -123,17 +134,10 @@ var Puzzle = {
         this.scene.add(light);
       }
 
-      var side = new THREE.Group();
-      this.cube.add(side);
+      this.activeCubes = new THREE.Group();
+      this.cube.add(this.activeCubes);
 
-      for (let c of this.cubes) {
-        // console.log(c.position.x);
-        if (c.position.x == 1) {
-          side.add(c);
-        }
-      }
-      side.rotation.x = 2;
-
+      // this.getMove("U");
       this.render();
       // this.animate();
     },
@@ -148,61 +152,134 @@ var Puzzle = {
       this.renderer.render(this.scene, this.camera);
     },
 
-    spinAnimation: function() {
-      // TODO work out how to make this spin from the current position
-      return gsap.to(this.cube.rotation, {
-        duration: 3,
-        x: (i, t) => {
-          // console.log(t.x);
-          return "+=3";
+    getPiece: function() {
+      let p = {
+        data: null,
+        obj: new THREE.Group(),
+        plastic: new THREE.Mesh(
+          new THREE.BoxGeometry(1, 1, 1),
+          new THREE.MeshStandardMaterial({
+            color: MATERIALS.BLACK,
+            transparent: true
+          })
+        ),
+        stickers: {
+          UP: null,
+          DOWN: null,
+          LEFT: null,
+          RIGHT: null,
+          FRONT: null,
+          BACK: null
         },
-        y: (i, t) => {
-          // console.log(t.y);
-          return "+=8";
+        position: {
+          x: 0,
+          y: 0,
+          z: 0
         },
-        z: (i, t) => {
-          // console.log(t.z);
-          return "+=2";
+        stickersVisible: true,
+        hasStickers: {
+          get: function() {
+            return this.stickersVisible;
+          },
+          set: function(value) {
+            this.stickersVisible = value;
+            this.animateStickers(0, value ? 1 : 0);
+          }
         },
-        repeatRefresh: true,
-        ease: "power3.out"
-      });
-    },
 
-    spinX: function() {
-      return gsap.to(this.cube.rotation, {
-        duration: 1,
-        x: () => {
-          return this.cube.rotation.y + 3;
+        showStickers: function() {
+          this.stickersVisible = true;
+          this.animateStickers(0.3, 1);
+        },
+
+        hideStickers: function() {
+          this.stickersVisible = false;
+          this.animateStickers(0.3, 0);
+        },
+
+        animateStickers: function(time, alpha) {
+          for (let face in this.stickers) {
+            let sticker = this.stickers[face];
+
+            if (sticker) {
+              gsap.to(sticker.material, {
+                duration: time,
+                opacity: alpha
+              });
+            }
+          }
+        },
+
+        hide: function() {
+          gsap.to(this.plastic.material, { duration: 0.3, opacity: 0 });
+          this.hideStickers();
+        },
+        show: function() {
+          gsap.to(this.plastic.material, { duration: 0.3, opacity: 1 });
+          this.showStickers();
         }
-      });
-    },
-    spinY: function(rotation = 3) {
-      return gsap.to(this.cube.rotation, {
-        duration: 1,
-        y: () => this.cube.rotation.y + rotation
-      });
+      };
+
+      p.obj.add(p.plastic);
+      return p;
     },
 
     showOnlyCenters: function() {
-      // return this.changeColor(0x6e2aad); // purple
+      for (let c of this.cubes) {
+        if (c.data.stickerCount != 1) {
+          c.hide();
+        } else {
+          c.show();
+        }
+      }
     },
 
     showOnlyEdges: function() {
-      // return this.changeColor(0x156ead); // blue
+      for (let c of this.cubes) {
+        if (c.data.stickerCount != 2) {
+          c.hide();
+        } else {
+          c.show();
+        }
+      }
     },
     showOnlyCorners: function() {
-      // return this.changeColor(0xffd608); //gold
+      for (let c of this.cubes) {
+        if (c.data.stickerCount != 3) {
+          c.hide();
+        } else {
+          c.show();
+        }
+      }
+    },
+    showAll: function() {
+      for (let c of this.cubes) {
+        c.show();
+      }
     },
 
-    getSticker: function(shape, material, dir, x, y, z) {
+    getSticker: function(shape, color, dir, x, y, z) {
       // flat shape
-      let s = 0.9; // sticker scale
-      var geometry = new THREE.ShapeBufferGeometry(shape);
+
+      const CENTER = 0;
+      const EDGE = 1;
+      const CORNER = 2;
+      const shapes = [
+        this.roundedRect(0.25, 0.25, 0.25, 0.25),
+        this.roundedRect(0.1, 0.1, 0.1, 0.1),
+        this.roundedRect(0.1, 0.1, 0.1, 0.1)
+      ];
+
+      var geometry = new THREE.ShapeBufferGeometry(shapes[shape]);
+      var material = new THREE.MeshStandardMaterial({
+        color: color,
+        transparent: true
+      });
       var sticker = new THREE.Mesh(geometry, material);
       var r = Math.PI / 2;
       let depth = 0.501;
 
+      let s = 0.9; // sticker scale
       sticker.scale.set(s, s, s);
 
       switch (dir) {
@@ -277,31 +354,118 @@ var Puzzle = {
       return null;
     },
     getMove: function(str) {
-      let xValue = "+=0";
-      let yValue = "+=0";
-      let zValue = "+=0";
-      const qtr = Math.PI / 4;
+      let move = str.split("");
+      let x = null;
+      let y = null;
+      let z = null;
+      let r = Math.PI / 2;
+      let axis;
+      let dir;
+      let face;
 
-      switch (str) {
-        case "R":
-        case "R'":
-          xValue = "+=" + -qtr;
-          break;
-        case "L":
-        case "L'":
-          xValue = "+=" + qtr;
-          break;
-        case "U'":
-        case "U":
-          yValue = "+=" + qtr;
-          break;
-        case "F'":
-        case "F":
-          zValue = "+=" + qtr;
-          break;
+      // rotate CCW?
+      r = move.length > 1 && move[1] == "'" ? r : -r;
+
+      if (move[0] == "R") {
+        face = "RIGHT";
+        axis = "x";
+        dir = 1;
+        x = r * dir;
+      } else if (move[0] == "L") {
+        face = "LEFT";
+        axis = "x";
+        dir = -1;
+        x = r * dir;
+      } else if (move[0] == "U") {
+        face = "UP";
+        axis = "y";
+        dir = 1;
+        y = r * dir;
+      } else if (move[0] == "D") {
+        face = "DOWN";
+        axis = "y";
+        dir = -1;
+        y = r * dir;
+      } else if (move[0] == "F") {
+        face = "FRONT";
+        axis = "z";
+        dir = 1;
+        z = r * dir;
+      } else if (move[0] == "B") {
+        face = "BACK";
+        axis = "z";
+        dir = -1;
+        z = r * dir;
       }
 
-      return this.spinTo(xValue, yValue, zValue);
+      // this.selectCubes(axis, dir);
+
+      return gsap.to(this.activeCubes.rotation, {
+        onStart: () => {
+          this.selectCubes(axis, dir);
+        },
+        // callbackScope: this,
+        onComplete: () => {
+          this.updateCube(face, dir);
+        },
+        duration: 0.4,
+        x: x,
+        y: y,
+        z: z,
+        ease: "back.inOut"
+      });
+    },
+
+    updateCube: function(face, dir) {
+      this.model.rotate(face, dir);
+
+      this.resetActiveCubes();
+      this.model.prettyPrint();
+    },
+
+    resetActiveCubes: function() {
+      let len = this.activeCubes.children.length;
+      for (let i = 0; i < len; i++) {
+        this.cube.add(this.activeCubes.children[0]);
+      }
+
+      this.activeCubes.rotation.set(0, 0, 0);
+    },
+
+    selectCubes: function(axis, direction) {
+      console.log("selecting cubes", this.activeCubes.children.length);
+      console.log("Are there any cubes selected??");
+      if (this.activeCubes.children.length) {
+        console.log("Yes, cubes were selected.");
+        this.resetActiveCubes();
+      } else {
+        console.log("No cubes selected");
+      }
+      var n = 0;
+      for (let c of this.cubes) {
+        n++;
+        if (c.position[axis] == direction) {
+          this.activeCubes.add(c.obj);
+        }
+      }
+      console.log(
+        "number of selected cubes:",
+        this.activeCubes.children.length
+      );
+    },
+    spinX: function() {
+      return gsap.to(this.cube.rotation, {
+        duration: 1,
+        x: () => {
+          return this.cube.rotation.y + 3;
+        }
+      });
+    },
+    spinY: function(rotation = 3) {
+      return gsap.to(this.cube.rotation, {
+        duration: 1,
+        y: () => this.cube.rotation.y + rotation
+      });
     },
 
     spinContinuously: function() {
@@ -373,9 +537,6 @@ var Puzzle = {
         this.renderer.setSize(displaySize, displaySize, false);
         this.camera.updateProjectionMatrix();
       }
-    },
-    hello: function() {
-      return "Puzzle says hello";
     }
   },
 

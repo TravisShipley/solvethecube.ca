@@ -29,25 +29,25 @@ let CUBELETS_OF = {
   DOWN: [24, 15, 6, 25, 16, 7, 26, 17, 8]
 };
 
+var self;
+
 export default class Cube {
   constructor(state) {
-    // console.log("\n\n\n\n         Class of CUBE       \n\n\n\n", state);
+    // save context so these methods work in gsap callbacks
+    self = this;
+    self.cubelets = [];
+    self.state = self.setState(state);
 
-    this.cubelets = [];
-    this.state = this.setState(state);
-
-    // this.prettyPrint();
-
-    // this.rotate("UP", CCW);
-    // this.rotate("FRONT", CW);
-    // this.rotate("DOWN", CW);
-    // this.rotate("RIGHT", CW);
+    this.prettyPrint();
+    // this.rotate("UP", CW);
   }
 
   rotate(face, direction) {
     // create and array of all the cubelets in the face
     // that we want to rotate, then turn that into a matrix
-    var selectedCubelets = CUBELETS_OF[face].map(v => this.cubelets[v]);
+    console.log("model rotating", face, direction);
+    console.log("self", self);
+    var selectedCubelets = CUBELETS_OF[face].map(v => self.cubelets[v]);
     var matrix = matrixFromArray(selectedCubelets);
 
     // rotating a matrix is simpler than an array
@@ -61,11 +61,11 @@ export default class Cube {
 
     // insert the newly rotated array back into the array of cubelets
     for (let i in CUBELETS_OF[face]) {
-      this.cubelets[CUBELETS_OF[face][i]] = selectedCubelets[i];
-      this.cubelets[CUBELETS_OF[face][i]].rotate(AXIS[face], direction);
+      self.cubelets[CUBELETS_OF[face][i]] = selectedCubelets[i];
+      self.cubelets[CUBELETS_OF[face][i]].rotate(AXIS[face], direction);
 
       // set the position of the cubelet to it's new index in the main array
-      this.cubelets[CUBELETS_OF[face][i]].position = CUBELETS_OF[face][i];
+      self.cubelets[CUBELETS_OF[face][i]].position = CUBELETS_OF[face][i];
     }
   }
 
@@ -75,6 +75,8 @@ export default class Cube {
     if (!s) {
       s = POSITIONS.UNKNOWN;
       console.warn("Cube has been set to an unknown position.");
+    } else {
+      console.log("the state is ", s);
     }
 
     for (let i = 0; i < 3; i++) {
@@ -86,16 +88,17 @@ export default class Cube {
           let z = 1 - k;
 
           let c = new Cubelet(index, x, y, z);
-
+          console.log("new cubelet", index, x, y, z);
           // using this cubelet's index, find which faces it belongs to
           // then assign the color at that position from the given
           // state object to this cubelet.
+
           for (let face in c.colors) {
             let color = s[face][CUBELETS_OF[face].indexOf(index)];
             c.colors[face] = color ? color : null;
           }
 
-          this.cubelets[index] = c;
+          self.cubelets[index] = c;
         }
       }
     }
@@ -124,16 +127,16 @@ export default class Cube {
 
       for (let i of CUBELETS_OF[face]) {
         colors += n % 3 == 0 ? "\n\t\t" : " ";
-        colors += `${this.cubelets[i].colors[face]}\t`;
+        colors += `${self.cubelets[i].colors[face]}\t`;
 
         pos += n % 3 == 0 ? "\n\t\t" : " ";
-        pos += `${this.cubelets[i].position}`;
+        pos += `${self.cubelets[i].position}`;
 
         loc += n % 3 == 0 ? "\n\t\t" : " ";
-        loc += `${this.cubelets[i].location}`;
+        loc += `${self.cubelets[i].location}`;
 
         id += n % 3 == 0 ? "\n\t\t" : " ";
-        id += `${this.cubelets[i].id}`;
+        id += `${self.cubelets[i].id}`;
 
         n++;
       }

@@ -66,7 +66,7 @@ export default {
       title: "The Daisy",
       stickerColor: "rgb(255, 191, 73)",
       stickerRotation: "rotate(6deg)",
-      demoPuzzleState: "PRE_DAISY_1",
+      demoPuzzleState: "DAISY",
       timeline: null,
       showDemo: true,
       progress: 0,
