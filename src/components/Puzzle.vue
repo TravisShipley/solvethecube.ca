@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="puzzle-container"></div>
+  <div ref="container" class="puzzle-container" @click="print"></div>
 </template>
 
 <script>
@@ -12,7 +12,7 @@ import * as THREE from "three";
 
 import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
-import { COLORS } from "../js/Colors.js";
+// import { COLORS } from "../js/Colors.js";
 import { MATERIALS } from "../js/Materials.js";
 
 var Puzzle = {
@@ -36,6 +36,7 @@ var Puzzle = {
     };
   },
   props: {
+    name: String,
     state: {
       type: String,
       default: "SOLVED"
@@ -73,8 +74,7 @@ var Puzzle = {
       this.canvas = this.renderer.domElement;
 
       // create a new cube
-
-      this.model = new Cube(this.state);
+      this.model = new Cube(this.name, this.state);
       this.cube = new THREE.Group();
 
       if (this.sphere) {
@@ -86,6 +86,7 @@ var Puzzle = {
       }
 
       this.cubes = [];
+      this.activeCubes = [];
 
       for (let c of this.model.cubelets) {
         var piece = this.getPiece();
@@ -107,7 +108,7 @@ var Puzzle = {
             );
 
             piece.stickers[key] = sticker;
-            piece.obj.add(sticker);
+            piece.plastic.add(sticker);
           }
         }
 
@@ -117,7 +118,7 @@ var Puzzle = {
         piece.position.y = c.y;
         piece.position.z = c.z;
 
-        piece.obj.position.set(c.x, c.y, c.z);
+        piece.plastic.position.set(c.x, c.y, c.z);
         this.cube.add(piece.obj);
       }
 
@@ -134,10 +135,6 @@ var Puzzle = {
         this.scene.add(light);
       }
 
-      this.activeCubes = new THREE.Group();
-      this.cube.add(this.activeCubes);
-
-      // this.getMove("U");
       this.render();
       // this.animate();
     },
@@ -155,6 +152,7 @@ var Puzzle = {
     getPiece: function() {
       let p = {
         data: null,
+        // pivot: new THREE.Group(),
         obj: new THREE.Group(),
         plastic: new THREE.Mesh(
           new THREE.BoxGeometry(1, 1, 1),
@@ -217,6 +215,16 @@ var Puzzle = {
         show: function() {
           gsap.to(this.plastic.material, { duration: 0.3, opacity: 1 });
           this.showStickers();
+        },
+        update: function() {
+          // update the stickers
+          for (let face in this.stickers) {
+            if (this.stickers[face]) {
+              this.stickers[face].material.color.set(
+                MATERIALS[this.data.colors[face]]
+              );
+            }
+          }
         }
       };
 
@@ -337,122 +345,118 @@ var Puzzle = {
       return shape;
     },
 
-    changeColor: function(color, time = 1) {
-      // if (!color) {
-      //   throw new Error('No color given to "Puzzle.changeColor"');
-      // }
-      // let newColor = new THREE.Color(color);
-      // if (!newColor.isColor) {
-      //   throw new Error('Invalid color given to "Puzzle.changeColor"');
-      // }
-      // return gsap.to(this.cube.material.color, {
-      //   duration: time,
-      //   r: newColor.r,
-      //   g: newColor.g,
-      //   b: newColor.b
-      // });
-      return null;
-    },
     getMove: function(str) {
       let move = str.split("");
       let x = null;
       let y = null;
       let z = null;
-      let r = Math.PI / 2;
+      let r = Math.PI / -2;
       let axis;
-      let dir;
+      let vector;
       let face;
 
       // rotate CCW?
-      r = move.length > 1 && move[1] == "'" ? r : -r;
+      let CCW = move.length > 1 && move[1] == "'" ? -1 : 1;
 
       if (move[0] == "R") {
         face = "RIGHT";
         axis = "x";
-        dir = 1;
-        x = r * dir;
+        vector = 1;
+        x = r * vector * CCW;
       } else if (move[0] == "L") {
         face = "LEFT";
         axis = "x";
-        dir = -1;
-        x = r * dir;
+        vector = -1;
+        x = r * vector * CCW;
       } else if (move[0] == "U") {
         face = "UP";
         axis = "y";
-        dir = 1;
-        y = r * dir;
+        vector = 1;
+        y = r * vector * CCW;
       } else if (move[0] == "D") {
         face = "DOWN";
         axis = "y";
-        dir = -1;
-        y = r * dir;
+        vector = -1;
+        y = r * vector * CCW;
       } else if (move[0] == "F") {
         face = "FRONT";
         axis = "z";
-        dir = 1;
-        z = r * dir;
+        vector = 1;
+        z = r * vector * CCW;
       } else if (move[0] == "B") {
         face = "BACK";
         axis = "z";
-        dir = -1;
-        z = r * dir;
+        vector = -1;
+        z = r * vector * CCW;
       }
 
-      // this.selectCubes(axis, dir);
+      var tween = gsap.to(
+        this.groupCubes(axis, vector),
 
-      return gsap.to(this.activeCubes.rotation, {
-        onStart: () => {
-          this.selectCubes(axis, dir);
-        },
-        // callbackScope: this,
-        onComplete: () => {
-          this.updateCube(face, dir);
-        },
-        duration: 0.4,
-        x: x,
-        y: y,
-        z: z,
-        ease: "back.inOut"
-      });
+        {
+          data: { completed: false },
+
+          onStart: () => {
+            tween.data.complete = false;
+            console.log("Start", tween.data.complete);
+          },
+          onReverseComplete: () => {
+            tween.data.complete = false;
+            console.log("Reverse", tween.data.complete);
+          },
+          // callbackScope: this,
+          onComplete: () => {
+            // reset to original state
+            tween.invalidate();
+            this.model.rotate(face, CCW);
+            this.updateCube();
+            console.log("Complete", face, CCW);
+            tween.data.completed = true;
+          },
+
+          onUpdate: () => console.log(tween.data.completed),
+          duration: 0.4,
+          x: x,
+          y: y,
+          z: z,
+          ease: "back.inOut"
+        }
+      );
+
+      return tween;
     },
 
-    updateCube: function(face, dir) {
-      this.model.rotate(face, dir);
+    updateCube: function(face = "", CCW = 1) {
+      for (let i in this.cubes) {
+        this.cubes[i].data = this.model.cubelets[i];
+        this.cubes[i].obj.rotation.set(0, 0, 0);
+        this.cubes[i].update();
+      }
 
-      this.resetActiveCubes();
       this.model.prettyPrint();
     },
 
-    resetActiveCubes: function() {
-      let len = this.activeCubes.children.length;
-      for (let i = 0; i < len; i++) {
-        this.cube.add(this.activeCubes.children[0]);
-      }
+    groupCubes: function(axis, direction) {
+      let group = [];
+      console.log("let's group", axis, direction);
 
-      this.activeCubes.rotation.set(0, 0, 0);
-    },
-
-    selectCubes: function(axis, direction) {
-      console.log("selecting cubes", this.activeCubes.children.length);
-      console.log("Are there any cubes selected??");
-      if (this.activeCubes.children.length) {
-        console.log("Yes, cubes were selected.");
-        this.resetActiveCubes();
-      } else {
-        console.log("No cubes selected");
-      }
-      var n = 0;
       for (let c of this.cubes) {
-        n++;
         if (c.position[axis] == direction) {
-          this.activeCubes.add(c.obj);
+          group.push(c.obj.rotation);
         }
       }
-      console.log(
-        "number of selected cubes:",
-        this.activeCubes.children.length
-      );
+      return group;
     },
+
+    degroupCubes: function(group) {
+      console.log(group.length, group);
+      while (group.length > 0) {
+        console.log(group.length);
+        this.cube.add(group.children[0]);
+      }
+      group.rotation.set(0, 0, 0);
+    },
+
     spinX: function() {
       return gsap.to(this.cube.rotation, {
         duration: 1,
@@ -537,6 +541,10 @@ var Puzzle = {
         this.renderer.setSize(displaySize, displaySize, false);
         this.camera.updateProjectionMatrix();
       }
+    },
+    print: function() {
+      console.log("CUBE CLICKED. INITIAL STATE:", this.state);
+      this.model.prettyPrint();
     }
   },
 

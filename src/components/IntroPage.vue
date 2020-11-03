@@ -129,6 +129,8 @@ export default {
 
           onLeaveBack: () => {
             spinning = cube.spinContinuously();
+            cube.model.setState("SOLVED");
+            cube.updateCube();
           }
         }
       });
@@ -152,30 +154,26 @@ export default {
           0
         )
 
-        .add(cube.spinTo(0.5, 2.5, 0, 0.5), 0) // white face up
-        .add(cube.getMove("F"), 0)
-        .add(cube.getMove("R"))
+        .add(cube.spinTo(0.5, -0.65, 0), 0) // white face up
+        // .add(cube.getMove("F"), 0)
+        .add(cube.getMove("R"), 0.5)
         .add(cube.getMove("U"))
-        .add(cube.getMove("L"))
-        .add(cube.getMove("U'"))
+        .add(cube.getMove("F'"))
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 2)
         .add(cube.getMove("R'"))
         .add(cube.getMove("L'"))
         .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 3)
-        // .add(cube.getMove("L"))
-        // .call(console.log, ["Trying to rotate FRONT"])
-        // .call(cube.model.rotate, ["FRONT", 1], 1)
-        // .call(cube.model.rotate, ["LEFT", 1], 2)
-        // .call(cube.model.rotate, ["UP", 1], 3)
-        // .call(cube.model.prettyPrint, null, 4)
-        // .call(cube.showOnlyCenters)
-        // .call(cube.showOnlyCenters)
-        // .call(cube.showOnlyEdges)
-        // .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
-        // .call(cube.showOnlyEdges)
-        // .call(cube.showOnlyCorners)
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"))
-        // .call(cube.showOnlyCorners)
+        .add(cube.getMove("L"))
+
+        .call(cube.showAll, null, 1.999)
+        .call(cube.showOnlyCenters, null, 2)
+        .call(cube.showOnlyCenters, null, 2.999)
+        .call(cube.showOnlyEdges, null, 3)
+        .add(cube.spinTo("+=3.1415", "+=0", "+=0"))
+        .call(cube.showOnlyEdges, null, 3.999)
+        .call(cube.showOnlyCorners, null, 4)
+        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 5)
+        .call(cube.showOnlyCorners, null, 4.999)
         .call(cube.showAll);
 
       // Timeline for the intro page
@@ -216,6 +214,9 @@ export default {
           }
         })
         .set({}, {}, "+=1");
+    },
+    insertTween: function() {
+      this.heroTimeline.add(this.$refs.heroPuzzle.getMove("U'"));
     }
   },
   mounted: function() {

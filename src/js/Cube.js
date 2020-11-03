@@ -29,24 +29,29 @@ let CUBELETS_OF = {
   DOWN: [24, 15, 6, 25, 16, 7, 26, 17, 8]
 };
 
-var self;
-
 export default class Cube {
-  constructor(state) {
-    // save context so these methods work in gsap callbacks
-    self = this;
-    self.cubelets = [];
-    self.state = self.setState(state);
+  constructor(name, state) {
+    this.name = name;
+    this.cubelets = [];
+    this.state = this.setState(state);
 
-    this.prettyPrint();
+    // this.prettyPrint(false, false, true, false);
+
+    // this.rotate("FRONT", CW);
+    // this.prettyPrint(false, false, true, false);
+    // this.rotate("RIGHT", CW);
+    // this.prettyPrint(false, false, true, false);
     // this.rotate("UP", CW);
+    // this.prettyPrint(false, false, true, false);
   }
 
   rotate(face, direction) {
     // create and array of all the cubelets in the face
     // that we want to rotate, then turn that into a matrix
-    console.log("model rotating", face, direction);
-    console.log("self", self);
+
+    console.log("ROTATE", face, direction);
+    var self = this;
+    console.log(face, CUBELETS_OF[face]);
     var selectedCubelets = CUBELETS_OF[face].map(v => self.cubelets[v]);
     var matrix = matrixFromArray(selectedCubelets);
 
@@ -61,11 +66,11 @@ export default class Cube {
 
     // insert the newly rotated array back into the array of cubelets
     for (let i in CUBELETS_OF[face]) {
-      self.cubelets[CUBELETS_OF[face][i]] = selectedCubelets[i];
-      self.cubelets[CUBELETS_OF[face][i]].rotate(AXIS[face], direction);
+      this.cubelets[CUBELETS_OF[face][i]] = selectedCubelets[i];
+      this.cubelets[CUBELETS_OF[face][i]].rotate(AXIS[face], direction);
 
       // set the position of the cubelet to it's new index in the main array
-      self.cubelets[CUBELETS_OF[face][i]].position = CUBELETS_OF[face][i];
+      this.cubelets[CUBELETS_OF[face][i]].position = CUBELETS_OF[face][i];
     }
   }
 
@@ -88,7 +93,6 @@ export default class Cube {
           let z = 1 - k;
 
           let c = new Cubelet(index, x, y, z);
-          console.log("new cubelet", index, x, y, z);
           // using this cubelet's index, find which faces it belongs to
           // then assign the color at that position from the given
           // state object to this cubelet.
@@ -98,15 +102,12 @@ export default class Cube {
             c.colors[face] = color ? color : null;
           }
 
-          self.cubelets[index] = c;
+          this.cubelets[index] = c;
         }
       }
     }
   }
 
-  hello() {
-    return "Cube says hello";
-  }
   prettyPrint(_colors = true, _pos = false, _id = false, _loc = false) {
     console.log(
       "\nThe current state of the cube\n============================="
@@ -126,17 +127,20 @@ export default class Cube {
       var n = 0;
 
       for (let i of CUBELETS_OF[face]) {
+        let color = this.cubelets[i].colors[face];
+        if (color == COLORS.BLANK) color = "______";
+
         colors += n % 3 == 0 ? "\n\t\t" : " ";
-        colors += `${self.cubelets[i].colors[face]}\t`;
+        colors += `${color}\t`;
 
         pos += n % 3 == 0 ? "\n\t\t" : " ";
-        pos += `${self.cubelets[i].position}`;
+        pos += `${this.cubelets[i].position}`;
 
         loc += n % 3 == 0 ? "\n\t\t" : " ";
-        loc += `${self.cubelets[i].location}`;
+        loc += `${this.cubelets[i].location}`;
 
         id += n % 3 == 0 ? "\n\t\t" : " ";
-        id += `${self.cubelets[i].id}`;
+        id += `${this.cubelets[i].id}`;
 
         n++;
       }
@@ -202,21 +206,6 @@ class Cubelet {
   get location() {
     return `(${this.x},${this.y},${this.z})`;
   }
-
-  // I thought this was pretty clever, but it's totally unnecessary
-  /* get position() {
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        for (let k = 0; k < 3; k++) {
-          let index = k + j * 3 + i * 9;
-
-          if (this.x == 1 - i && this.y == 1 - j && this.z == 1 - k) {
-            return index;
-          }
-        }
-      }
-    }
-  } */
 }
 
 const matrixFromArray = function(array) {

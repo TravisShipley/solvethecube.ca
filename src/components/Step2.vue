@@ -44,7 +44,7 @@
           <DemoDisplay
             ref="demoDisplay"
             :state="demoPuzzleState"
-            v-show="ready"
+            v-if="ready"
           />
         </transition>
       </div>
@@ -71,7 +71,7 @@ export default {
       stickerColor: "rgb(108, 207, 104)",
       stickerRotation: "rotate(-9deg)",
       stickerLeft: "40%",
-      demoPuzzleState: "SOLVED",
+      demoPuzzleState: "WHITECROSS",
       timeline: null,
       ready: false,
       progress: 0,
@@ -92,6 +92,13 @@ export default {
     init: function() {
       this.timeline = this.$refs.bar.createTimeline(this);
 
+      ScrollTrigger.create({
+        trigger: "#step2",
+        start: "top+=50% bottom",
+        end: "bottom+=50% top",
+        onToggle: () => (this.ready = !this.ready)
+      });
+
       let appearTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: "#step2",
@@ -99,11 +106,7 @@ export default {
           end: "center top",
           // once: true,
           // markers: true,
-          scrub: 0.2,
-          // onLeave: () => (this.ready = false),
-          // onEnterBack: () => (this.ready = true),
-          // onLeaveBack: () => (this.ready = false),
-          onToggle: () => (this.ready = !this.ready)
+          scrub: 0.2
         }
       });
 

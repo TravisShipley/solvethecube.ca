@@ -6,7 +6,7 @@ const Y = COLORS.YELLOW;
 const W = COLORS.WHITE;
 const B = COLORS.BLUE;
 const G = COLORS.GREEN;
-const _ = "______"; // this could be a problem if I import lodash at some point
+const _ = COLORS.BLANK; // this could be a problem if I import lodash at some point
 
 export const POSITIONS = {
   SOLVED: {

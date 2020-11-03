@@ -4,5 +4,6 @@ export const COLORS = {
   YELLOW: "YELLOW",
   WHITE: "WHITE",
   BLUE: "BLUE",
-  GREEN: "GREEN"
+  GREEN: "GREEN",
+  BLANK: "BLANK"
 };

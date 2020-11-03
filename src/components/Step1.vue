@@ -89,13 +89,27 @@ export default {
       let once = true;
       this.timeline = this.$refs.bar.createTimeline(this);
 
-      this.timeline.add(
+      let appearTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#step1",
+          start: "top center",
+          end: "center top",
+          // once: true,
+          // markers: true,
+          scrub: 0.2
+        }
+      });
+
+      appearTimeline.add(
         gsap.from("#step1 .slide", {
-          y: 60,
+          duration: 2,
+          y: function(index) {
+            return 30 * (index + 1);
+          },
           alpha: 0,
-          ease: "back.out",
+          ease: "power3.inOut",
           stagger: {
-            each: 1,
+            each: 0.2,
             delay: function(index) {
               return 2 * index;
             }
