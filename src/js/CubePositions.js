@@ -6,7 +6,9 @@ const Y = COLORS.YELLOW;
 const W = COLORS.WHITE;
 const B = COLORS.BLUE;
 const G = COLORS.GREEN;
-const _ = COLORS.BLANK; // this could be a problem if I import lodash at some point
+const H = COLORS.HIGHLIGHTED;
+const T = COLORS.TINTED;
+const _ = COLORS.BLANK;
 
 export const POSITIONS = {
   SOLVED: {
@@ -17,6 +19,16 @@ export const POSITIONS = {
     BACK: [G, G, G, G, G, G, G, G, G],
     LEFT: [O, O, O, O, O, O, O, O, O],
     DOWN: [W, W, W, W, W, W, W, W, W]
+  },
+
+  PRE_DAISY: {
+    name: "PRE_DAISY",
+    UP: [_, _, _, _, Y, T, _, _, _],
+    FRONT: [_, _, _, _, _, W, _, W, _],
+    RIGHT: [_, W, _, T, _, _, _, _, _],
+    BACK: [_, _, _, _, _, _, _, T, _],
+    LEFT: [_, _, _, _, _, _, _, _, _],
+    DOWN: [_, T, _, _, _, _, _, W, _]
   },
 
   DAISY: {
@@ -37,6 +49,16 @@ export const POSITIONS = {
     BACK: [_, _, _, _, G, _, _, G, _],
     LEFT: [_, _, _, _, O, _, _, O, _],
     DOWN: [_, W, _, W, W, W, _, W, _]
+  },
+
+  PRE_WHITECROSS: {
+    name: "PRE_WHITECROSS",
+    UP: [_, W, _, W, Y, W, _, W, _],
+    FRONT: [_, G, _, _, B, _, _, _, _],
+    RIGHT: [_, O, _, _, R, _, _, _, _],
+    BACK: [_, R, _, _, G, _, _, _, _],
+    LEFT: [_, B, _, _, O, _, _, _, _],
+    DOWN: [_, _, _, _, W, _, _, _, _]
   },
 
   FIRSTLAYER: {
@@ -78,17 +100,6 @@ export const POSITIONS = {
     LEFT: [_, Y, Y, O, O, O, O, O, O],
     DOWN: [W, W, W, W, W, W, W, W, W]
   },
-
-  PRE_DAISY: {
-    name: "PRE_DAISY",
-    UP: [_, W, _, W, Y, W, _, W, _],
-    FRONT: [_, _, _, _, _, _, _, _, _],
-    RIGHT: [_, _, _, _, _, _, _, _, _],
-    BACK: [_, _, _, _, _, _, _, _, _],
-    LEFT: [_, _, _, _, _, _, _, _, _],
-    DOWN: [_, _, _, _, _, _, _, _, _]
-  },
-
   UNKNOWN: {
     name: "SOLVED",
     UP: [R, R, R, R, R, R, R, R, R],

@@ -51,11 +51,6 @@ export default {
   max-width: 13em;
   color: #221112;
   text-shadow: 0 0 32px #ebe0d9;
-  span {
-    // background: rgba(241, 237, 232, 0.356);
-    // background: rgba(255, 225, 197, 0.568);
-    // background: #f6f5ef79;
-  }
 
   .easy-steps {
     display: inline-block;

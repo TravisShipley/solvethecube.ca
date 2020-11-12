@@ -1,10 +1,10 @@
 <template>
-  <section :id="pageId" ref="page" class="page">
+  <section id="notation" ref="page" class="page">
     <div class="page__wrapper">
       <h1 class="title">
         {{ title }}
       </h1>
-      <ProgressBar :progress="progress" backgroundColor="teal" />
+      <ProgressBar :progress="progress" backgroundColor="rgb(117, 30, 199)" />
       <div class="page__content grid">
         <div class="instructions">
           <h2 class="slide">
@@ -64,10 +64,14 @@
         </div>
 
         <div class="demo">
-          <Puzzle ref="puzzle" :state="puzzleState" />
+          <Puzzle
+            ref="puzzle"
+            :state="puzzleState"
+            :scrollDirection="scrollDirection"
+          />
 
           <transition name="fade" mode="out-in">
-            <div class="moves" v-show="forward">
+            <div class="moves" v-show="scrollDirection == 1">
               <span class="moves__alg alg"
                 ><span>{{ currentStep }}</span></span
               >
@@ -92,13 +96,12 @@ export default {
   },
   data() {
     return {
-      id: 0,
       title: "Before we continue...",
       puzzleState: "SOLVED",
       progress: 0,
       timeline: null,
+      scrollDirection: 1,
       stepIndex: 0,
-      forward: true,
       steps: [
         { alg: "R", text: "Rotate the RIGHT face 90° clockwise." },
         { alg: "L", text: "Rotate the LEFT face 90° clockwise." },
@@ -134,7 +137,7 @@ export default {
           trigger: page,
           onUpdate: self => {
             this.progress = self.progress;
-            this.forward = self.direction == 1;
+            this.scrollDirection = self.direction;
           },
           onEnterBack: () => (this.stepIndex = this.steps.length - 1),
           scrub: true,
@@ -165,9 +168,10 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../css/variables";
-
+$accent: rgb(117, 30, 199);
+// $accent: ;
 .title {
-  color: teal;
+  color: $accent;
   text-shadow: none;
 }
 
@@ -186,7 +190,11 @@ export default {
     margin-right: 0.5rem;
   }
 }
-
+.alg {
+  color: white;
+  background: desaturate(lighten($accent, 20%), 30%);
+  background: rgba($accent, 0.7);
+}
 .slide.alg {
   font-size: smaller;
 }

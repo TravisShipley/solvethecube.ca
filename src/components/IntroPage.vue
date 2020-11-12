@@ -5,12 +5,10 @@
       <h1 class="title title--intro slide">But first...</h1>
       <ProgressBar :progress="progress" />
       <div class="page__content">
-        <div class="slide">
-          <h2>
-            Let's learn a bit about how the cube works.
-          </h2>
-        </div>
-        <div class="slide">
+        <h2 class="slide">
+          Let's learn a bit about how the cube works.
+        </h2>
+        <div class="centers slide">
           <h3>
             <HighlightedText>
               Centers
@@ -23,7 +21,7 @@
           </p>
         </div>
 
-        <div class="slide">
+        <div class="edges slide">
           <h3>
             <HighlightedText>
               Edges
@@ -35,7 +33,7 @@
           </p>
         </div>
 
-        <div class="slide">
+        <div class="corners slide">
           <h3>
             <HighlightedText>
               Corners
@@ -55,6 +53,8 @@
       class="hero-puzzle"
       :sphere="true"
       :state="puzzleState"
+      :scrollDirection="scrollDirection"
+      v-if="visible"
     />
   </section>
 </template>
@@ -67,7 +67,7 @@ import Puzzle from "./Puzzle";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+// import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 library.add(faBars);
 
@@ -84,11 +84,13 @@ export default {
       id: 0,
       title: "But first...",
       puzzleState: "SOLVED",
+      scrollDirection: 1,
       stickerColor: "#5cbae6",
       progress: 0,
       timeline: null,
       heroTimeline: null,
       screenHeight: null,
+      visible: true,
       isFixed: false
     };
   },
@@ -97,13 +99,13 @@ export default {
       const cube = this.$refs.heroPuzzle;
       const page = this.$refs.page;
 
-      var spinning = cube.spinContinuously();
+      let spinning = cube.spinContinuously();
 
       // Create the timeline for the hero cube
       this.heroTimeline = gsap.timeline({
-        defaults: {
-          duration: 10
-        },
+        // defaults: {
+        duration: 10,
+        // },
 
         scrollTrigger: {
           trigger: "#app",
@@ -112,28 +114,25 @@ export default {
           end: "bottom+=100%",
           scrub: 0.5,
           invalidateOnRefresh: true,
-
-          // markers: {
-          //   startColor: "darkgreen",
-          //   endColor: "purple",
-          //   fontSize: "18px",
-          //   fontWeight: "bold",
-          //   indent: 20
-          // },
-
+          onUpdate: self => {
+            this.scrollDirection = self.direction;
+          },
           onEnter: () => {
             spinning.kill();
             cube.unspin();
             this.heroTimeline.invalidate();
           },
-
           onLeaveBack: () => {
             spinning = cube.spinContinuously();
-            cube.model.setState("SOLVED");
-            cube.updateCube();
           }
         }
       });
+
+      // let the hero cube know about the scrolltrigger
+      this.puzzleScrollTrigger = this.heroTimeline.scrollTrigger;
+
+      cube.prepare("F' U2 R D' L2 U R' U'");
+
       gsap.set(cube.$el, { y: 0 });
 
       this.heroTimeline
@@ -145,7 +144,7 @@ export default {
             ease: "back.inOut"
           },
           {
-            duration: 1,
+            duration: 3,
             // x: "10",
             y: this.screenHeight,
             scale: 0.85,
@@ -153,28 +152,20 @@ export default {
           },
           0
         )
+        .add(cube.spinTo(0.25, 0.4, 0).duration(3), 0) // white face up
+        .add(cube.spinTo("+=0", "+=10", "+=0").duration(7), ">") // spin the cube until the end of the page
+        .add(cube.reverseTimeline().duration(3), 0.2)
+        .add(cube.performMoves("U2 U2 F2 F2 B2 B2 U2 U2").duration(6), ">+1")
 
-        .add(cube.spinTo(0.5, -0.65, 0), 0) // white face up
-        // .add(cube.getMove("F"), 0)
-        .add(cube.getMove("R"), 0.5)
-        .add(cube.getMove("U"))
-        .add(cube.getMove("F'"))
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 2)
-        .add(cube.getMove("R'"))
-        .add(cube.getMove("L'"))
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 3)
-        .add(cube.getMove("L"))
+        .call(cube.showAll, null, 3.999)
+        .call(cube.showOnlyCenters, null, 4)
+        .call(cube.showOnlyCenters, null, 5.999)
+        .call(cube.showOnlyEdges, null, 6)
 
-        .call(cube.showAll, null, 1.999)
-        .call(cube.showOnlyCenters, null, 2)
-        .call(cube.showOnlyCenters, null, 2.999)
-        .call(cube.showOnlyEdges, null, 3)
-        .add(cube.spinTo("+=3.1415", "+=0", "+=0"))
-        .call(cube.showOnlyEdges, null, 3.999)
-        .call(cube.showOnlyCorners, null, 4)
-        .add(cube.spinTo("+=0", "+=3.1415", "+=0"), 5)
-        .call(cube.showOnlyCorners, null, 4.999)
-        .call(cube.showAll);
+        .call(cube.showOnlyEdges, null, 7.999)
+        .call(cube.showOnlyCorners, null, 8)
+        .call(cube.showOnlyCorners, null, 9.999)
+        .call(cube.showAll, null, 10);
 
       // Timeline for the intro page
       this.timeline = gsap.timeline({
@@ -190,33 +181,33 @@ export default {
         }
       });
 
-      var slideTimeline = gsap.timeline({
+      let appearTimeline = gsap.timeline({
         scrollTrigger: {
-          trigger: page,
-          scrub: true,
-          // pin: true,
-          once: true,
-          end: "bottom+=100%"
+          trigger: "#intro",
+          start: "top bottom",
+          end: "center center",
+          // once: true,
+          // markers: true,
+          scrub: 0.2
         }
       });
 
-      // use a separate timeline to add a "once" flag to the slides
-      slideTimeline
-        .from("#intro .slide", {
-          y: 60,
+      appearTimeline.add(
+        gsap.from("#intro .slide", {
+          duration: 2,
+          y: function(index) {
+            return 30 * (index + 1);
+          },
           alpha: 0,
-          ease: "back.out",
+          ease: "power3.inOut",
           stagger: {
-            each: 1,
+            each: 0.2,
             delay: function(index) {
               return 2 * index;
             }
           }
         })
-        .set({}, {}, "+=1");
-    },
-    insertTween: function() {
-      this.heroTimeline.add(this.$refs.heroPuzzle.getMove("U'"));
+      );
     }
   },
   mounted: function() {

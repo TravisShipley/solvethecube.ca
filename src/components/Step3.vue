@@ -45,9 +45,9 @@
             the corner.
           </p>
           <p>
-            <b>Important:</b> In the event that you have a white corner in the
-            bottom layer that is incorrectly placed, simply perform one of the
-            triggers on it to move it to the top layer, then solve it correctly.
+            <b>Important:</b> If you have a white corner in the bottom layer
+            that is incorrectly placed, perform one of the triggers on it to
+            move it to the top layer, then solve from there.
           </p>
           <p class="slide hidden">
             An <b>algorithm</b> is simply a series moves that we can do in
@@ -57,9 +57,10 @@
         </div>
         <DemoDisplay
           ref="demoDisplay"
-          :state="demoPuzzleState"
+          :states="demoPuzzleStates"
           :images="demoImages"
           :moves="demoMoves"
+          :showBottom="true"
         />
       </div>
     </div>
@@ -84,7 +85,7 @@ export default {
       title: "The First Layer",
       stickerColor: "rgb(180, 100, 255)",
       stickerRotation: "rotate(8deg)",
-      demoPuzzleState: "SOLVED",
+      demoPuzzleStates: ["FIRSTLAYER", "SOLVED", "SOLVED", "SOLVED"],
       timeline: null,
       showDemo: false,
       demoImages: [
@@ -93,10 +94,10 @@ export default {
         "first-layer-3.png"
       ],
       demoMoves: [
-        { name: "adjust", alg: null },
+        { name: "adjust", alg: "y2" },
         { name: null, alg: "L' U R U' L U R'" },
-        { name: "adjust", alg: null },
-        { name: "The Fish", alg: "R U R' U R U2 R' F" }
+        { name: "adjust", alg: "y2'" },
+        { name: "Right Trigger", alg: "R U R' U R U2 R' F" }
       ],
       progress: 0,
       goal: {

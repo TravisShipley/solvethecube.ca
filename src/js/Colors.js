@@ -5,5 +5,7 @@ export const COLORS = {
   WHITE: "WHITE",
   BLUE: "BLUE",
   GREEN: "GREEN",
+  TINTED: "TINTED",
+  HIGHLIGHTED: "HIGHLIGHTED",
   BLANK: "BLANK"
 };

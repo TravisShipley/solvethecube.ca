@@ -1,6 +1,6 @@
 <template>
-  <div ref="demo" class="demo">
-    <div class="tabs" v-if="images" ref="tabsContainer">
+  <div ref="demo" :class="demoClasses">
+    <div class="tabs" v-if="demo && images" ref="tabsContainer">
       <div
         ref="tabs"
         class="tab"
@@ -17,11 +17,10 @@
         :style="{ left: selectorOffset + 'px' }"
       ></div>
     </div>
-
     <div class="demo__puzzle">
-      <Puzzle ref="puzzle" :state="puzzleState" />
+      <Puzzle ref="puzzle" :state="puzzleState" @stateChanged="beginDemo" />
     </div>
-    <div class="controller">
+    <div class="controller" v-if="demo">
       <div class="controller__btn accent-color" @click="isPlaying = !isPlaying">
         <font-awesome-icon icon="play" size="2x" v-show="!isPlaying" />
         <font-awesome-icon icon="pause" size="2x" v-show="isPlaying" />
@@ -42,14 +41,14 @@
           ></div>
         </div>
       </div>
-      <div class="controller__btn  accent-color">
+      <!-- <div class="controller__btn  accent-color">
         <font-awesome-icon icon="step-forward" size="2x" />
       </div>
       <div class="controller__btn  accent-color">
         <font-awesome-icon icon="step-backward" size="2x" />
-      </div>
+      </div> -->
     </div>
-    <div class="moves" v-if="moves">
+    <div class="moves" v-if="demo && showMoves">
       <div class="adj">
         <font-awesome-icon icon="cube" size="1x" />
       </div>
@@ -67,6 +66,13 @@
       </div>
       <div class="info">Adjust the cube.</div>
     </div>
+    <button
+      v-if="!demo"
+      class="btn btn--play-demo"
+      @click.once="puzzleState = states[1]"
+    >
+      Play Demo
+    </button>
   </div>
 </template>
 
@@ -95,18 +101,29 @@ export default {
   },
 
   props: {
-    state: String,
+    states: Array,
     images: Array,
-    moves: Array
+    moves: Array,
+    showMoves: {
+      type: Boolean,
+      default: true
+    },
+    showBottom: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data() {
     return {
+      demo: false,
       active: false,
       puzzleState: null,
       timeline: null,
       selectedTab: 0,
       selectorOffset: 0,
+      playing: false,
+      demoClasses: "demo demo--goal",
       scrubPosition: null
     };
   },
@@ -121,17 +138,18 @@ export default {
     },
     isPlaying: {
       get: function() {
-        return !this.timeline.paused();
+        return this.playing;
       },
-      set: function(play) {
-        if (play) {
+      set: function(playing) {
+        this.playing = playing;
+
+        if (playing) {
           this.playTimeline();
         } else {
           // TODO shouldn't just be killing this
           gsap.killTweensOf(this.$refs.thumb);
           this.timeline.pause();
         }
-        console.log("IS THE TIMELINE PLAYING:", play);
       }
     },
     isFinished: function() {
@@ -140,19 +158,42 @@ export default {
   },
   methods: {
     init: function() {
+      // do a nice little demo animation
+      this.timeline = gsap.timeline({ repeat: -1, duration: 6 });
+      this.timeline.add(this.$refs.puzzle.spinY(Math.PI * 2).duration(6), 0);
+      if (this.showBottom) {
+        this.timeline.add(this.$refs.puzzle.performMoves("x"), 0.1);
+        this.timeline.add(this.$refs.puzzle.performMoves("x'"), 4);
+      }
+    },
+
+    beginDemo: function() {
       this.$emit("complete");
+
+      this.demo = true;
+      this.demoClasses = "demo";
+
+      // select the first tab, if tabs exist
+      console.log("we got any images?", this.images);
+      if (this.images) this.selectTab(0);
+
       let thumb = this.$refs.thumb;
       let container = this.$refs.container;
       let cube = this.$refs.puzzle;
 
-      this.timeline
-        .add(cube.spinTo(0.5, 2.5, 0))
-        .add(this.$refs.puzzle.spinY())
-        // .add(this.$refs.puzzle.changeColor(0xd1ccc0), "<")
-        .add(this.$refs.puzzle.spinY())
-        // .add(this.$refs.puzzle.changeColor(0x6ab04c), "<")
-        .add(this.$refs.puzzle.spinX());
-      // .add(this.$refs.puzzle.changeColor(0x2f3542), "<");
+      this.timeline.kill();
+      this.timeline = gsap.timeline({
+        delay: 0.5,
+        // paused: true,
+        onComplete: () => {
+          this.isPlaying = false;
+          console.log(this.playing);
+        }
+      });
+
+      if (this.moves && this.moves[0].alg) {
+        this.timeline.add(cube.performMoves(this.moves[0].alg));
+      }
 
       Draggable.create(thumb, {
         type: "x",
@@ -174,9 +215,16 @@ export default {
         onDragParams: [this]
       });
     },
+
     playTimeline() {
-      if (this.timeline.progress() == 1) this.timeline.restart();
-      else this.timeline.resume();
+      if (!this.timeline) return;
+
+      if (this.timeline.progress() == 1) {
+        this.$refs.puzzle.reset();
+        this.timeline.restart();
+      } else {
+        this.timeline.resume();
+      }
 
       let xDistance =
         this.$refs.container.clientWidth - this.$refs.thumb.clientWidth;
@@ -222,27 +270,22 @@ export default {
 
       if (!this.timeline.paused()) this.playTimeline();
     },
+
     selectTab(index) {
+      console.log("TRYING TO SELECT A TAB TOO SOON", this.states, index);
       this.selectedTab = index;
-      console.log(this.$refs.tabs);
+      this.puzzleState = this.states[index + 1];
       this.selectorOffset = this.$refs.tabs[index].offsetLeft;
     }
   },
 
   created() {
-    this.timeline = gsap.timeline({
-      paused: true,
-      onComplete: function() {
-        this.isPlaying = false;
-      }
-    });
-    this.puzzleState = this.state;
     console.log("DEMO PUZZLE CREATED");
+    this.puzzleState = this.states[0];
   },
 
   mounted() {
     this.init();
-    if (this.images) this.selectTab(0);
   }
 };
 </script>
@@ -255,9 +298,16 @@ export default {
   text-align: center;
 
   backdrop-filter: blur(16px);
-  background: rgba(247, 243, 241, 0.8);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 24px;
   box-shadow: 8px 32px 32px -12px #3e0f0f33;
+  transition: all 300ms ease;
+
+  &.demo--goal {
+    backdrop-filter: blur(0);
+    background: rgba(247, 243, 241, 0);
+    box-shadow: 8px 8px 32px -12px #3e0f0f00;
+  }
 
   &__puzzle {
     position: relative;
@@ -305,9 +355,29 @@ export default {
 }
 $controller_size: 3em;
 $scrubber_size: 2em;
+.btn {
+  border-radius: 0.5em;
+  padding: 1em 2em;
+}
+.btn--play-demo {
+  background: rgba(247, 243, 241, 0.8);
+  box-shadow: 0 16px 16px -8px #3e0f0f33;
+  color: #121212;
+  font-weight: bold;
+  transition: all 200ms ease;
+  transition-property: background-color, transform;
+
+  &:focus,
+  &:hover,
+  &:active {
+    outline: none;
+    background-color: #ffffff;
+    transform: scale(1.15);
+  }
+}
 .controller {
   display: grid;
-  grid-template-columns: $controller_size 1fr $controller_size $controller_size;
+  grid-template-columns: $controller_size 1fr;
   // gap: 1em;
   margin: 1em;
   height: $controller_size;

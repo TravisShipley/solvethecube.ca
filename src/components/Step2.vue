@@ -43,8 +43,11 @@
         <transition name="fade" mode="out-in" appear>
           <DemoDisplay
             ref="demoDisplay"
-            :state="demoPuzzleState"
             v-if="ready"
+            :states="demoPuzzleStates"
+            :showMoves="false"
+            :showBottom="true"
+            :moves="demoMoves"
           />
         </transition>
       </div>
@@ -71,10 +74,11 @@ export default {
       stickerColor: "rgb(108, 207, 104)",
       stickerRotation: "rotate(-9deg)",
       stickerLeft: "40%",
-      demoPuzzleState: "WHITECROSS",
+      demoPuzzleStates: ["WHITECROSS", "PRE_WHITECROSS"],
+      demoMoves: [{ name: null, alg: "U' F2 U U R2 y2 U B2 y L2 x" }],
       timeline: null,
       ready: false,
-      progress: 0,
+      progress: 100,
       goal: {
         id: 0,
         description: "Build the white cross on the bottom of the cube.",
@@ -90,20 +94,18 @@ export default {
   },
   methods: {
     init: function() {
-      this.timeline = this.$refs.bar.createTimeline(this);
+      // this.timeline = this.$refs.bar.createTimeline(this);
 
       ScrollTrigger.create({
         trigger: "#step2",
-        start: "top+=50% bottom",
-        end: "bottom+=50% top",
         onToggle: () => (this.ready = !this.ready)
       });
 
       let appearTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: "#step2",
-          start: "top center",
-          end: "center top",
+          start: "top bottom",
+          end: "center center",
           // once: true,
           // markers: true,
           scrub: 0.2

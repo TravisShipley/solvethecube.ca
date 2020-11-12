@@ -8,8 +8,14 @@ const LEFT = "LEFT";
 const FRONT = "FRONT";
 const DOWN = "DOWN";
 
-const CW = 1;
-const CCW = -1;
+const FACE_NAMES = {
+  U: "UP",
+  R: "RIGHT",
+  B: "BACK",
+  L: "LEFT",
+  F: "FRONT",
+  D: "DOWN"
+};
 
 let AXIS = {
   UP: { tangents: ["BACK", "RIGHT", "FRONT", "LEFT"] },
@@ -30,36 +36,31 @@ let CUBELETS_OF = {
 };
 
 export default class Cube {
-  constructor(name, state) {
-    this.name = name;
+  constructor(state) {
     this.cubelets = [];
     this.state = this.setState(state);
 
-    // this.prettyPrint(false, false, true, false);
-
     // this.rotate("FRONT", CW);
-    // this.prettyPrint(false, false, true, false);
+    // this.prettyPrint();
     // this.rotate("RIGHT", CW);
-    // this.prettyPrint(false, false, true, false);
+
     // this.rotate("UP", CW);
-    // this.prettyPrint(false, false, true, false);
   }
 
-  rotate(face, direction) {
+  rotate(faceCode, CCW, fullTurn = false) {
+    let face = FACE_NAMES[faceCode];
     // create and array of all the cubelets in the face
     // that we want to rotate, then turn that into a matrix
 
-    console.log("ROTATE", face, direction);
-    var self = this;
-    console.log(face, CUBELETS_OF[face]);
-    var selectedCubelets = CUBELETS_OF[face].map(v => self.cubelets[v]);
-    var matrix = matrixFromArray(selectedCubelets);
+    let self = this;
+    let selectedCubelets = CUBELETS_OF[face].map(v => self.cubelets[v]);
+    let matrix = matrixFromArray(selectedCubelets);
 
     // rotating a matrix is simpler than an array
     // TODO:  but it might be less efficient for my purposes.
     //        Look into that.
-    if (direction == CW) matrix = rotateMatrix(matrix);
-    else matrix = rotateMatrixCCW(matrix);
+    if (CCW) matrix = rotateMatrixCCW(matrix);
+    else matrix = rotateMatrix(matrix);
 
     // convert the rotated matrix back to an array
     selectedCubelets = arrayFromMatrix(matrix);
@@ -67,11 +68,13 @@ export default class Cube {
     // insert the newly rotated array back into the array of cubelets
     for (let i in CUBELETS_OF[face]) {
       this.cubelets[CUBELETS_OF[face][i]] = selectedCubelets[i];
-      this.cubelets[CUBELETS_OF[face][i]].rotate(AXIS[face], direction);
+      this.cubelets[CUBELETS_OF[face][i]].rotate(AXIS[face], CCW);
 
-      // set the position of the cubelet to it's new index in the main array
-      this.cubelets[CUBELETS_OF[face][i]].position = CUBELETS_OF[face][i];
+      // set the index of the cubelet to it's new index in the main array
+      this.cubelets[CUBELETS_OF[face][i]].index = CUBELETS_OF[face][i];
     }
+
+    if (fullTurn) this.rotate(faceCode, CCW);
   }
 
   setState(state) {
@@ -108,73 +111,119 @@ export default class Cube {
     }
   }
 
-  prettyPrint(_colors = true, _pos = false, _id = false, _loc = false) {
+  getState() {
+    // return a copy of the cubelets array
+    //
+    // figuring out that I needed to clone the array
+    // AND all the objects in it was a nightmare
+    // to figure out
+
+    return this.cubelets.map(obj => obj.clone());
+  }
+
+  // return the ids for all the cube in the face
+  getIDsForFace(face) {
+    let ids = [];
+    for (let i of CUBELETS_OF[face]) {
+      // add all the ids of the cubelets of 'face' to the array
+      ids.push(this.cubelets[i].id);
+    }
+    return ids;
+  }
+
+  prettyPrint(
+    cubelets = this.cubelets,
+    _colors = true,
+    _id = false,
+    _index = false,
+    _loc = false
+  ) {
     console.log(
       "\nThe current state of the cube\n============================="
     );
 
     var colors = "";
-    var pos = "";
     var id = "";
+    var index = "";
     var loc = "";
 
     for (let face in CUBELETS_OF) {
-      pos += `\n${face} pos: \t`;
       id += `\n${face}  id: \t`;
+      index += `\n${face}  index: \t`;
       loc += `\n${face} loc: \t`;
 
       colors += `\n${face}: \t`;
       var n = 0;
 
       for (let i of CUBELETS_OF[face]) {
-        let color = this.cubelets[i].colors[face];
+        let color = cubelets[i].colors[face];
         if (color == COLORS.BLANK) color = "______";
+        if (color == COLORS.HIGHLIGHTED) color = "######";
+        if (color == COLORS.TINTED) color = "------";
+
+        // pad out the color string
+        while (color.length < 6) {
+          color += " ";
+        }
 
         colors += n % 3 == 0 ? "\n\t\t" : " ";
         colors += `${color}\t`;
 
-        pos += n % 3 == 0 ? "\n\t\t" : " ";
-        pos += `${this.cubelets[i].position}`;
-
         loc += n % 3 == 0 ? "\n\t\t" : " ";
-        loc += `${this.cubelets[i].location}`;
+        loc += `${cubelets[i].location}`;
 
         id += n % 3 == 0 ? "\n\t\t" : " ";
-        id += `${this.cubelets[i].id}`;
+        id += `${cubelets[i].id}`;
+
+        index += n % 3 == 0 ? "\n\t\t" : " ";
+        index += `${cubelets[i].index}`;
 
         n++;
       }
     }
     if (_colors) console.log(colors);
-    if (_pos) console.log(pos);
     if (_loc) console.log(loc);
     if (_id) console.log(id);
+    if (_index) console.log(index);
+  }
+  prettyPrintIDs(cubelets = this.cubelets) {
+    this.prettyPrint(cubelets, false, true, false, false);
+  }
+  prettyPrintIndexes(cubelets = this.cubelets) {
+    this.prettyPrint(cubelets, false, false, true, false);
   }
 }
 
 class Cubelet {
   constructor(index, x, y, z) {
     this.id = index;
-    this.state = index;
+    this.index = index;
     this.x = x;
     this.y = y;
     this.z = z;
 
     this.colors = {
-      UP: null,
       FRONT: null,
       RIGHT: null,
+      UP: null,
       BACK: null,
       LEFT: null,
       DOWN: null
     };
   }
 
-  rotate(axis, direction) {
+  clone() {
+    var clone = new Cubelet(this.index, this.x, this.y, this.z);
+    clone.id = this.id;
+    clone.colors = Object.assign({}, this.colors);
+    return clone;
+  }
+
+  rotate(axis, CCW) {
     var newTangents = axis.tangents.slice();
 
     // shift the tangents array to rotate the tangent faces
-    if (direction == CCW) newTangents.push(newTangents.shift());
+    if (CCW) newTangents.push(newTangents.shift());
     else newTangents.unshift(newTangents.pop());
 
     var rotatedColors = newTangents.map(v => this.colors[v]);

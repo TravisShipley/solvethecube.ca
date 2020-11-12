@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="puzzle-container" @click="print"></div>
+  <div ref="container" class="puzzle-container"></div>
 </template>
 
 <script>
@@ -12,7 +12,6 @@ import * as THREE from "three";
 
 import Cube from "../js/Cube.js";
 import Lighting from "../js/Lighting.js";
-// import { COLORS } from "../js/Colors.js";
 import { MATERIALS } from "../js/Materials.js";
 
 var Puzzle = {
@@ -26,17 +25,20 @@ var Puzzle = {
       model: null,
       cube: null,
       cubes: null,
-      activeCubes: null,
-
+      states: null,
+      stateIndex: null,
+      startingState: 0,
+      history: null,
       canvas: null,
-      timeline: null,
-      origin: null,
-      size: null,
-      scrollY: 0
+      size: null
     };
   },
   props: {
     name: String,
+    scrollDirection: {
+      type: Number,
+      default: 1
+    },
     state: {
       type: String,
       default: "SOLVED"
@@ -46,12 +48,22 @@ var Puzzle = {
       default: false
     }
   },
-  computed: {
-    // size: {
-    //   get: function {
-    //     return
-    //   }
-    // }
+  watch: {
+    state: function(val) {
+      let reset = !!this.model;
+      this.model = new Cube(this.state);
+
+      if (reset) {
+        this.states = [];
+        this.history = [];
+
+        this.recordState();
+        this.reset();
+
+        // things have changed let our observers know
+        this.$emit("stateChanged");
+      }
+    }
   },
 
   methods: {
@@ -74,8 +86,14 @@ var Puzzle = {
       this.canvas = this.renderer.domElement;
 
       // create a new cube
-      this.model = new Cube(this.name, this.state);
       this.cube = new THREE.Group();
+      this.model = new Cube(this.state);
+
+      this.cubes = [];
+      this.states = [];
+      this.history = [];
+
+      this.recordState();
 
       if (this.sphere) {
         var sphere = new THREE.Mesh(
@@ -85,22 +103,15 @@ var Puzzle = {
         this.cube.add(sphere);
       }
 
-      this.cubes = [];
-      this.activeCubes = [];
-
       for (let c of this.model.cubelets) {
         var piece = this.getPiece();
-
         piece.data = c; // attach the cubelet data directly to the piece.
-        let sticker;
+        piece.colors = c.colors;
 
         for (let key in c.colors) {
-          let color = c.colors[key];
-
-          if (color) {
-            sticker = this.getSticker(
-              c.stickerCount - 1,
-              MATERIALS[color],
+          if (c.colors[key]) {
+            let sticker = this.getSticker(
+              c.stickerCount - 1, // determines shape
               key,
               c.x,
               c.y,
@@ -122,8 +133,6 @@ var Puzzle = {
         this.cube.add(piece.obj);
       }
 
-      this.cube.rotation.set(0.5, -0.6, 0);
-
       // add the cube to the scene
       this.scene.add(this.cube);
 
@@ -134,15 +143,20 @@ var Puzzle = {
       for (let light of lights) {
         this.scene.add(light);
       }
+      // this.setRotation();
+      this.reset();
+      this.cube.rotation.set(0.5, -0.6, 0);
 
       this.render();
       // this.animate();
     },
+
     render: function() {
       this.resizeCanvasToDisplaySize();
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(this.render);
     },
+
     animate: function() {
       this.resizeCanvasToDisplaySize();
       requestAnimationFrame(this.animate);
@@ -174,6 +188,7 @@ var Puzzle = {
           y: 0,
           z: 0
         },
+
         stickersVisible: true,
         hasStickers: {
           get: function() {
@@ -209,7 +224,7 @@ var Puzzle = {
         },
 
         hide: function() {
-          gsap.to(this.plastic.material, { duration: 0.3, opacity: 0 });
+          gsap.to(this.plastic.material, { duration: 0.3, opacity: 0.1 });
           this.hideStickers();
         },
         show: function() {
@@ -266,7 +281,7 @@ var Puzzle = {
       }
     },
 
-    getSticker: function(shape, color, dir, x, y, z) {
+    getSticker: function(shape, face, x, y, z) {
       // flat shape
 
       const CENTER = 0;
@@ -280,7 +295,7 @@ var Puzzle = {
 
       var geometry = new THREE.ShapeBufferGeometry(shapes[shape]);
       var material = new THREE.MeshStandardMaterial({
-        color: color,
+        color: MATERIALS.N,
         transparent: true
       });
       var sticker = new THREE.Mesh(geometry, material);
@@ -290,7 +305,7 @@ var Puzzle = {
       let s = 0.9; // sticker scale
       sticker.scale.set(s, s, s);
 
-      switch (dir) {
+      switch (face) {
         case "UP":
           sticker.position.set(0, depth * y, 0);
           sticker.rotation.set(-r, 0, 0);
@@ -316,7 +331,6 @@ var Puzzle = {
           sticker.rotation.set(0, r * 2, 0);
           break;
       }
-
       return sticker;
     },
 
@@ -345,116 +359,222 @@ var Puzzle = {
       return shape;
     },
 
+    reset: function() {
+      this.cube.rotation.set(0.5, -0.6, 0);
+      this.applyState(this.startingState);
+    },
+
+    twist: function(str) {
+      let ccw = str.includes("'");
+      let _180 = str.includes("2");
+      let face = str.charAt(0);
+      this.model.rotate(face, ccw, _180);
+      this.recordState();
+    },
+
+    prepare: function(list) {
+      // let self = this;
+      let moves = list.split(" ");
+
+      for (let move of moves) {
+        this.twist(move);
+        this.history.push(move);
+      }
+
+      this.startingState = this.stateIndex;
+      this.reset();
+    },
+
+    performMoves: function(list) {
+      console.log("list of move", list);
+      console.log(this.states);
+      let sequence = list ? list.split(" ") : [...this.history];
+      let tl = gsap.timeline();
+
+      for (let move of sequence) {
+        if (move.charAt() == "x" || move.charAt() == "y") {
+          tl.add(this.adjustCube(move));
+        } else {
+          tl.add(this.getMove(move));
+        }
+      }
+
+      return tl;
+    },
+
+    parseMove: function(str) {
+      let face = str.charAt(0);
+      let ccw = str.includes("'");
+      let turns = str.includes("4")
+        ? 4
+        : str.includes("3")
+        ? 3
+        : str.includes("2")
+        ? 2
+        : 1;
+
+      return { face, turns, ccw };
+    },
+
+    reverseTimeline: function() {
+      let tl = gsap.timeline({});
+
+      let sequence = [...this.history].reverse();
+
+      for (let move of sequence) {
+        move = this.invertMove(move);
+        tl.add(this.getMove(move));
+      }
+      return tl;
+    },
+
+    invertMove: function(str) {
+      return str.includes("'") ? str.replace("'", "") : str + "'";
+    },
+
+    adjustCube: function(str) {
+      this.recordState();
+
+      let { face, turns, ccw } = this.parseMove(str);
+      // let x, y, z;
+      let radians = Math.PI / 3;
+      let rotation = ccw ? "+=" + radians * turns : "-=" + radians * turns;
+      let baseDuration = 0.3;
+
+      let tweenProps = {
+        duration: baseDuration + baseDuration * turns,
+        ease: "power1.inOut"
+        // onStart: () => console.log("cube: ", x, y, z),
+        // onComplete: () => console.log("cube:", this.cube.rotation)
+      };
+
+      if (face == "x") tweenProps.x = rotation;
+      else tweenProps.y = rotation;
+
+      return gsap.to(this.cube.rotation, tweenProps);
+    },
+
     getMove: function(str) {
-      let move = str.split("");
       let x = null;
       let y = null;
       let z = null;
-      let r = Math.PI / -2;
-      let axis;
-      let vector;
-      let face;
+      let axis = null;
 
-      // rotate CCW?
-      let CCW = move.length > 1 && move[1] == "'" ? -1 : 1;
+      // parse the move input
+      let { face, turns, ccw } = this.parseMove(str);
 
-      if (move[0] == "R") {
-        face = "RIGHT";
+      let duration = turns == 1 ? 0.6 : 0.9;
+
+      let radians = ccw ? Math.PI / 2 : Math.PI / -2;
+      let vector = ["R", "F", "U"].includes(face) ? 1 : -1;
+
+      if (face == "R" || face == "L") {
         axis = "x";
-        vector = 1;
-        x = r * vector * CCW;
-      } else if (move[0] == "L") {
-        face = "LEFT";
-        axis = "x";
-        vector = -1;
-        x = r * vector * CCW;
-      } else if (move[0] == "U") {
-        face = "UP";
+        x = radians * turns * vector;
+      } else if (face == "U" || face == "D") {
         axis = "y";
-        vector = 1;
-        y = r * vector * CCW;
-      } else if (move[0] == "D") {
-        face = "DOWN";
-        axis = "y";
-        vector = -1;
-        y = r * vector * CCW;
-      } else if (move[0] == "F") {
-        face = "FRONT";
+        y = radians * turns * vector;
+      } else {
         axis = "z";
-        vector = 1;
-        z = r * vector * CCW;
-      } else if (move[0] == "B") {
-        face = "BACK";
-        axis = "z";
-        vector = -1;
-        z = r * vector * CCW;
+        z = radians * turns * vector;
       }
 
-      var tween = gsap.to(
-        this.groupCubes(axis, vector),
+      // if we're not doing a cube adjustment, continue on
+
+      // update the model and save the new data
+      // TODO this probably shouldn't be here
+      this.model.rotate(face, ccw, turns == 2);
+      this.recordState();
+
+      // keep track of where we are in the list of states
+      let start = this.stateIndex - 1;
+      let end = this.stateIndex;
+
+      // get the cubes we want to rotate
+      var targets = this.cubes.filter(c => c.position[axis] == vector);
+
+      // TODO make the cubes into Object3Ds
+      // separately get their Object3Ds
+      var activeFace = targets.map(cube => cube.obj.rotation);
+
+      // create the tween to rotate the cubes
+      var tween = gsap.fromTo(
+        activeFace,
+        {
+          x: () => {
+            return x && this.scrollDirection == -1 ? -x : 0;
+          },
+          y: () => {
+            return y && this.scrollDirection == -1 ? -y : 0;
+          },
+          z: () => {
+            return z && this.scrollDirection == -1 ? -z : 0;
+          }
+        },
 
         {
-          data: { completed: false },
+          x: () => {
+            return x && this.scrollDirection == -1 ? 0 : x;
+          },
+          y: () => {
+            return y && this.scrollDirection == -1 ? 0 : y;
+          },
+          z: () => {
+            return z && this.scrollDirection == -1 ? 0 : z;
+          },
 
-          onStart: () => {
-            tween.data.complete = false;
-            console.log("Start", tween.data.complete);
-          },
-          onReverseComplete: () => {
-            tween.data.complete = false;
-            console.log("Reverse", tween.data.complete);
-          },
-          // callbackScope: this,
+          duration: duration,
+          ease: "back.inOut",
           onComplete: () => {
-            // reset to original state
+            // invalidate the tween so that start and end directions
+            // are recalculated each time it runs
             tween.invalidate();
-            this.model.rotate(face, CCW);
-            this.updateCube();
-            console.log("Complete", face, CCW);
-            tween.data.completed = true;
+            activeFace.map(rot => rot.set(0, 0, 0));
+            this.applyState(end);
           },
 
-          onUpdate: () => console.log(tween.data.completed),
-          duration: 0.4,
-          x: x,
-          y: y,
-          z: z,
-          ease: "back.inOut"
+          onReverseComplete: () => {
+            // invalidate the tween so that start and end directions
+            // are recalculated each time it runs
+            tween.invalidate();
+            activeFace.map(rot => rot.set(0, 0, 0));
+            this.applyState(start);
+          }
         }
       );
 
       return tween;
     },
 
-    updateCube: function(face = "", CCW = 1) {
-      for (let i in this.cubes) {
-        this.cubes[i].data = this.model.cubelets[i];
-        this.cubes[i].obj.rotation.set(0, 0, 0);
-        this.cubes[i].update();
+    applyState: function(index, targets = this.cubes) {
+      this.stateIndex = index;
+      console.log("applying state:", index, this.states.length);
+      // console.log(this.states[index].prettyPrint);
+      for (let i in this.states[index]) {
+        let c = this.states[index][i];
+        targets[i].data = c;
+        targets[i].update();
       }
+    },
 
-      this.model.prettyPrint();
+    // keep an array of every state of the cube
+    recordState: function() {
+      // console.log("RECORD STATE");
+      // console.log("states.length", this.states.length);
+      this.states.push(this.model.getState());
+      this.stateIndex = this.states.length - 1;
     },
 
     groupCubes: function(axis, direction) {
       let group = [];
-      console.log("let's group", axis, direction);
 
       for (let c of this.cubes) {
         if (c.position[axis] == direction) {
-          group.push(c.obj.rotation);
+          group.push(c);
         }
       }
-      return group;
-    },
 
-    degroupCubes: function(group) {
-      console.log(group.length, group);
-      while (group.length > 0) {
-        console.log(group.length);
-        this.cube.add(group.children[0]);
-      }
-      group.rotation.set(0, 0, 0);
+      return group;
     },
 
     spinX: function() {
@@ -465,10 +585,20 @@ var Puzzle = {
         }
       });
     },
-    spinY: function(rotation = 3) {
+
+    spinY: function(rotation = 3, repeat = false) {
+      // let y = () => this.cube.rotation.y + rotation * ccw;
+
+      // if (rotation == -1) {
+      // let y = ccw ? "+=" + rotation : "-=" + rotation;
+      // repeat = rotation;
+      // }
+
       return gsap.to(this.cube.rotation, {
+        repeat: repeat ? -1 : 0,
         duration: 1,
-        y: () => this.cube.rotation.y + rotation
+        repeatRefresh: repeat,
+        y: "+=" + rotation
       });
     },
 
@@ -480,7 +610,7 @@ var Puzzle = {
         z: "+=random(0,1)",
         repeat: -1,
         repeatRefresh: true,
-        onRepeate: this.unspin,
+        onRepeat: () => this.unspin(),
         ease: "none"
       });
     },
@@ -542,9 +672,15 @@ var Puzzle = {
         this.camera.updateProjectionMatrix();
       }
     },
+
     print: function() {
-      console.log("CUBE CLICKED. INITIAL STATE:", this.state);
-      this.model.prettyPrint();
+      // console.log("CUBE CLICKED. INITIAL STATE:", this.state);
+      this.model.prettyPrintIDs();
+      this.model.prettyPrintIndexes();
+
+      for (let c of this.model.cubelets) {
+        console.log(c.id);
+      }
     }
   },
 

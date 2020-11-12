@@ -1,5 +1,5 @@
 <template>
-  <section :id="pageId" ref="page" class="page">
+  <section id="step1" ref="page" class="page">
     <PageSticker :backgroundColor="stickerColor" :transform="stickerRotation" />
     <div class="page__wrapper">
       <h1 class="title">
@@ -7,9 +7,17 @@
       </h1>
       <ProgressBar ref="bar" :progress="progress" />
       <!-- <GoalDisplay ref="goal" :goal="goal" @active="onGoalActive" /> -->
-      <div class="page__content grid" v-if="showDemo">
+      <div class="page__content grid">
         <div class="instructions">
-          <h2 class="slide">A humble beginning.</h2>
+          <h2 class="slide">A Little Bit of Intuition.</h2>
+          <p class="slide">
+            The goal of Step 1 is to
+            <em><b>Arrange the 4 white edges around the yellow center.</b></em>
+          </p>
+          <p class="slide">
+            There aren't really any tricks to this, but you'll very quickly
+            start to understand how the cube moves.
+          </p>
           <p class="slide">
             Start by holding your cube with the
             <b>yellow center facing up</b>. This is how you'll hold the cube for
@@ -29,12 +37,16 @@
             <a href="#step2">Step 2</a>.
           </p>
         </div>
-        <DemoDisplay
-          ref="demoDisplay"
-          @complete="onDemoComplete"
-          v-if="showDemo"
-          :state="demoPuzzleState"
-        />
+        <transition name="fade" mode="out-in" appear>
+          <DemoDisplay
+            ref="demoDisplay"
+            v-if="ready"
+            :states="demoPuzzleStates"
+            :showMoves="false"
+            :moves="demoMoves"
+            @complete="onDemoComplete"
+          />
+        </transition>
       </div>
     </div>
     <!-- <div class="page__footer">
@@ -66,10 +78,11 @@ export default {
       title: "The Daisy",
       stickerColor: "rgb(255, 191, 73)",
       stickerRotation: "rotate(6deg)",
-      demoPuzzleState: "DAISY",
+      demoPuzzleStates: ["DAISY", "PRE_DAISY"],
       timeline: null,
-      showDemo: true,
-      progress: 0,
+      ready: false,
+      progress: 100,
+      demoMoves: [{ name: null, alg: "R B y2 U B y2' U' F' U' R" }],
       goal: {
         id: 0,
         description: "Arrange the 4 white edges around the yellow center",
@@ -78,31 +91,34 @@ export default {
       }
     };
   },
-  computed: {
-    pageId: function() {
-      return "step" + this.id;
-    }
-  },
 
   methods: {
     init: function() {
       let once = true;
-      this.timeline = this.$refs.bar.createTimeline(this);
+
+      // this.timeline = this.$refs.bar.createTimeline(this);
+      ScrollTrigger.create({
+        trigger: "#step1",
+        onToggle: () => {
+          this.ready = !this.ready;
+        }
+      });
 
       let appearTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: "#step1",
-          start: "top center",
-          end: "center top",
+          start: "top bottom",
+          end: "center center",
           // once: true,
           // markers: true,
           scrub: 0.2
+          // onStart: () => (this.ready = !this.ready)
         }
       });
 
       appearTimeline.add(
         gsap.from("#step1 .slide", {
-          duration: 2,
+          duration: 1,
           y: function(index) {
             return 30 * (index + 1);
           },
@@ -118,7 +134,7 @@ export default {
       );
     }, // end init
     onGoalActive: function(value) {
-      this.showDemo = !value;
+      this.ready = !value;
     },
     onDemoComplete: function() {
       console.log("demo done");
